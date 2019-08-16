@@ -44,7 +44,6 @@ public class WebMvcConfig implements WebMvcConfigurer, ApplicationContextAware {
         templateEngine.setTemplateResolver(templateResolver());
         /** 支持SpringEL表达式 **/
         templateEngine.setEnableSpringELCompiler(true);
-        /** 支持SpringSecurity方言 **/
         return templateEngine;
     }
 

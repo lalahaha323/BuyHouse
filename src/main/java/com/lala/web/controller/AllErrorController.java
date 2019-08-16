@@ -6,6 +6,7 @@ import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.ServletWebRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,6 +51,7 @@ public class AllErrorController implements ErrorController {
 
     /** 除Web页面外的错误处理，比如Json/XML等 **/
     @RequestMapping(value = ERROR_PATH, produces = "application/json")
+    @ResponseBody
     public ServiceResult errorApiHandler(HttpServletRequest request) {
         ServletWebRequest servletWebRequest = new ServletWebRequest(request);
         Map<String, Object> map = this.errorAttributes.getErrorAttributes(servletWebRequest, false);
