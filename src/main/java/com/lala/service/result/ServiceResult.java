@@ -16,18 +16,26 @@ public class ServiceResult<T> implements Serializable {
     private String message;
     private T data;
 
-    private ServiceResult() {
-
+    public ServiceResult() {
+        this.code = ResultEnum.SUCCESS.getCode();
+        this.message = ResultEnum.SUCCESS.getMessage();
     }
 
-    public static <T> ServiceResult<T> returnResult(ResultEnum resultEnum, T data) {
+    public ServiceResult(int code, String message, T data) {
+        this.code = code;
+        this.message = message;
+        this.data = data;
+    }
 
-        ServiceResult<T> serviceResult = new ServiceResult<>();
+    public static ServiceResult ofMessage(int code, String message) {
+        return new ServiceResult(code, message, null);
+    }
 
-        serviceResult.code = resultEnum.getCode();
-        serviceResult.message = resultEnum.getMessage();
-        serviceResult.data = data;
+    public static ServiceResult ofSuccess(Object data) {
+        return new ServiceResult(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMessage(), data);
+    }
 
-        return serviceResult;
+    public static ServiceResult ofResultEnum(ResultEnum resultEnum) {
+        return new ServiceResult(resultEnum.getCode(), resultEnum.getMessage(), null);
     }
 }
