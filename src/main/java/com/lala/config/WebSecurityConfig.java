@@ -39,6 +39,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .loginProcessingUrl("/login")//配置角色登录处理入口
                 .and();
 
+        http.headers().frameOptions().sameOrigin();
     }
 
     /** 自定义认证策略 **/
