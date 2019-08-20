@@ -6,6 +6,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * @author lala
@@ -45,10 +47,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     /** 自定义认证策略 **/
     @Autowired
     public void configGlobal(AuthenticationManagerBuilder auth) {
+        /** 认证信息存储在内存中 **/
         try {
-            auth.inMemoryAuthentication().withUser("admin").password("admin").roles("ADMIN").and();
+            auth.inMemoryAuthentication().passwordEncoder(passwordEncoder())
+                    .withUser("admin")
+                    .password(passwordEncoder().encode("admin"))
+                    .roles("ADMIN");
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
