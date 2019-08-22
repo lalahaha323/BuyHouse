@@ -26,9 +26,12 @@ public class User implements UserDetails{
     private Date lastUpdateTime;
     private String avatar;
 
+    //权限字段
+    private List<GrantedAuthority> authorityList;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return this.authorityList;
     }
 
     @Override
