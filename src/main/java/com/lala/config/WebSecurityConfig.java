@@ -43,6 +43,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
 
                 .loginProcessingUrl("/login")//配置角色登录处理入口
+                .and()
+
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/logout/page")
+                .deleteCookies("JSESSIONID") //成功登出之后删除会话ID
+                .invalidateHttpSession(true) //成功登出之后使会话失效
                 .and();
 
         http.headers().frameOptions().sameOrigin();
