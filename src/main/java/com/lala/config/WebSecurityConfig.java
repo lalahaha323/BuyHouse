@@ -50,7 +50,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     /** 自定义认证策略 **/
     @Autowired
     public void configGlobal(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(authProvider());
+        auth.authenticationProvider(authProvider()).eraseCredentials(true);
     }
 
     @Bean
