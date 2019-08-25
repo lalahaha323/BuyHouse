@@ -1,6 +1,7 @@
 package com.lala.config;
 
 import com.lala.security.AuthProvider;
+import com.lala.security.LoginFail;
 import com.lala.security.LoginUrl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -41,6 +42,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
 
                 .loginProcessingUrl("/login")//配置角色登录处理入口
+                .failureHandler(loginFail())//登录失败处理
                 .and()
 
                 .logout()
@@ -71,5 +73,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public LoginUrl loginUrl() {
         return new LoginUrl("/user/login");
+    }
+
+    @Bean
+    public LoginFail loginFail() {
+        return new LoginFail(loginUrl());
     }
 }

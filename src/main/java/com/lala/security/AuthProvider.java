@@ -5,6 +5,7 @@ import com.lala.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -29,11 +30,11 @@ public class AuthProvider implements AuthenticationProvider {
 
         User user = userService.finUserByName(name);
         if(user == null) {
-            throw new AuthenticationCredentialsNotFoundException("authenticate Error");
+            throw new AuthenticationCredentialsNotFoundException("loginError");
         }
         if(encoder.matches(inputPassword, user.getPassword()))
             return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-        return null;
+        throw new BadCredentialsException("loginError");
     }
 
     @Override
