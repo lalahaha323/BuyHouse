@@ -1,6 +1,7 @@
 package com.lala.config;
 
 import com.lala.security.AuthProvider;
+import com.lala.security.LoginUrl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,9 +10,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * @author lala
@@ -50,7 +48,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/logout/page")
                 .deleteCookies("JSESSIONID") //成功登出之后删除会话ID
                 .invalidateHttpSession(true) //成功登出之后使会话失效
-                .and();
+                .and()
+
+                .exceptionHandling() //异常处理
+                .authenticationEntryPoint(loginUrl())
+                .accessDeniedPage("/403");
 
         http.headers().frameOptions().sameOrigin();
     }
@@ -63,5 +65,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public AuthenticationProvider authProvider() {
         return new AuthProvider();
+    }
+
+    @Bean
+    public LoginUrl loginUrl() {
+        return new LoginUrl("/user/login");
     }
 }
