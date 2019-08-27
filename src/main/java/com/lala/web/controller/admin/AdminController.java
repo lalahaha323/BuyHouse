@@ -1,8 +1,13 @@
 package com.lala.web.controller.admin;
 
+import com.lala.enums.ResultEnum;
+import com.lala.service.AliyunService;
+import com.lala.service.result.ServiceResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 后台管理控制，所有后台的请求都在这里进行处理
@@ -12,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+    @Autowired
+    AliyunService aliyunService;
 
     /** 后台管理中心 **/
     @GetMapping("/center")
@@ -35,6 +42,16 @@ public class AdminController {
     @GetMapping("/add/house")
     public String adminHousePage() {
         return "admin/house-add";
+    }
+
+    /** 上传图片 **/
+    @PostMapping(value = "/upload/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseBody
+    public ServiceResult uploadPhoto(@RequestParam("file") MultipartFile file) {
+        if(file.isEmpty()) {
+            return ServiceResult.ofResultEnum(ResultEnum.ERROR_EMPTY_PICTURE);
+        }
+        return aliyunService.uploadFile(file);
     }
 
 }

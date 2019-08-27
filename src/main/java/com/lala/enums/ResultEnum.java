@@ -22,7 +22,16 @@ public enum ResultEnum {
     //操作不支持
     NOT_SUPPORTED_OPERATION(40006, "Operation not supported"),
     //未登录
-    NOT_LOGIN(50000, "Not Login")
+    NOT_LOGIN(50000, "Not Login"),
+
+    //图片问题
+    //图片上传成功
+    SUCCESS_UPLOAD_PICTURE(60000, "图片上传成功"),
+    //MultiFile转换file失败
+    ERROR_FORMATTER(61000, "转换失败"),
+    //图片为空
+    ERROR_EMPTY_PICTURE(61001, "图片为空"),
+    ERROR_UPLOAD_PICTURE(61002, "图片上传失败")
     ;
 
     private Integer code;
