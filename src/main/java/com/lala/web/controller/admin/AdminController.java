@@ -50,6 +50,12 @@ public class AdminController {
         return "admin/house-list";
     }
 
+    /** 房源详细描述页 **/
+    @GetMapping("/house/subscribe")
+    public String houseSubscribe() {
+        return "admin/subscribe";
+    }
+
     /** 上传图片 **/
     @PostMapping(value = "/upload/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseBody
