@@ -44,6 +44,12 @@ public class AdminController {
         return "admin/house-add";
     }
 
+    /** 房源列表页 **/
+    @GetMapping("/house/list")
+    public String houseListPage() {
+        return "admin/house-list";
+    }
+
     /** 上传图片 **/
     @PostMapping(value = "/upload/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseBody
