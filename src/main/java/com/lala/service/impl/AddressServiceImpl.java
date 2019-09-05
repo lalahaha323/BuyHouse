@@ -29,16 +29,34 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public ServiceResult<SupportAddressDTO> findAllCities() {
-        List<SupportAddress> supportAddressList = supportAddressMapper.findAllByLevel(LevelEnum.CITY.getValue());
-        if(supportAddressList.isEmpty()) {
+        List<SupportAddress> cityList = supportAddressMapper.findAllByLevel(LevelEnum.CITY.getValue());
+        if(cityList.isEmpty()) {
             return ServiceResult.ofResultEnum(ResultEnum.NOT_FOUND);
         }
 
-        List<SupportAddressDTO> supportAddressDTOList = new ArrayList<>();
-        for (SupportAddress supportAddress : supportAddressList) {
+        List<SupportAddressDTO> cityDTOList = new ArrayList<>();
+        for (SupportAddress supportAddress : cityList) {
             SupportAddressDTO supportAddressDTO = modelMapper.map(supportAddress, SupportAddressDTO.class);
-            supportAddressDTOList.add(supportAddressDTO);
+            cityDTOList.add(supportAddressDTO);
         }
-        return ServiceResult.ofSuccess(supportAddressDTOList);
+        return ServiceResult.ofSuccess(cityDTOList);
+    }
+
+    @Override
+    public ServiceResult findAllRegionsByCityName(String cityName) {
+        if(cityName == null) {
+            return ServiceResult.ofResultEnum(ResultEnum.NOT_VALID_PARAM);
+        }
+        /** 获取到例如ｂｊ所有的ｒｅｇｉｏｎ的信息 **/
+        List<SupportAddress> regionList = supportAddressMapper.findAllByLevelAndBelongTo(LevelEnum.REGION.getValue(), cityName);
+        if(regionList.isEmpty()) {
+            return ServiceResult.ofResultEnum(ResultEnum.NOT_FOUND);
+        }
+        List<SupportAddressDTO> regionDTOList = new ArrayList<>();
+        for (SupportAddress supportAddress : regionList) {
+            SupportAddressDTO supportAddressDTO = modelMapper.map(supportAddress, SupportAddressDTO.class);
+            regionDTOList.add(supportAddressDTO);
+        }
+        return ServiceResult.ofSuccess(regionDTOList);
     }
 }

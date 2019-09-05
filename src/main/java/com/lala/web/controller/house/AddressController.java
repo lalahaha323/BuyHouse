@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -24,5 +25,13 @@ public class AddressController {
     @ResponseBody
     public ServiceResult getSupportCities() {
         return addressService.findAllCities();
+    }
+
+    /** 获取对应城市支持区域列表 **/
+    @GetMapping("/support/regions")
+    @ResponseBody
+    public ServiceResult getSupportRegions(@RequestParam(name = "city_name") String cityEnName) {
+        return addressService.findAllRegionsByCityName(cityEnName);
+
     }
 }
