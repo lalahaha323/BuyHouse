@@ -12,7 +12,7 @@ import com.lala.web.dto.SupportAddressDTO;
 public interface AddressService {
 
     /** 获取所有支持的城市列表 **/
-    ServiceResult<SupportAddressDTO> findAllCities();
+    ServiceResult findAllCities();
     /** 根据城市英文简写获取该城市所有支持的区域信息 **/
-    ServiceResult findAllRegionsByCityName(String cityName);
+    ServiceResult findAllRegionsByCityName(String cityEnName);
 }

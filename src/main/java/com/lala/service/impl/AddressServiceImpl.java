@@ -28,7 +28,7 @@ public class AddressServiceImpl implements AddressService {
     ModelMapper modelMapper;
 
     @Override
-    public ServiceResult<SupportAddressDTO> findAllCities() {
+    public ServiceResult findAllCities() {
         List<SupportAddress> cityList = supportAddressMapper.findAllByLevel(LevelEnum.CITY.getValue());
         if(cityList.isEmpty()) {
             return ServiceResult.ofResultEnum(ResultEnum.NOT_FOUND);
@@ -43,12 +43,12 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public ServiceResult findAllRegionsByCityName(String cityName) {
-        if(cityName == null) {
+    public ServiceResult findAllRegionsByCityName(String cityEnName) {
+        if(cityEnName == null) {
             return ServiceResult.ofResultEnum(ResultEnum.NOT_VALID_PARAM);
         }
         /** 获取到例如ｂｊ所有的ｒｅｇｉｏｎ的信息 **/
-        List<SupportAddress> regionList = supportAddressMapper.findAllByLevelAndBelongTo(LevelEnum.REGION.getValue(), cityName);
+        List<SupportAddress> regionList = supportAddressMapper.findAllByLevelAndBelongTo(LevelEnum.REGION.getValue(), cityEnName);
         if(regionList.isEmpty()) {
             return ServiceResult.ofResultEnum(ResultEnum.NOT_FOUND);
         }
