@@ -2,6 +2,7 @@ package com.lala.web.controller.house;
 
 import com.lala.service.AddressService;
 import com.lala.service.SubwayService;
+import com.lala.service.SubwayStationService;
 import com.lala.service.result.ServiceResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,9 @@ public class AddressController {
     @Autowired
     SubwayService subwayService;
 
+    @Autowired
+    SubwayStationService subwayStationService;
+
     /** 获取支持城市列表 **/
     @GetMapping("/support/cities")
     @ResponseBody
@@ -44,5 +48,12 @@ public class AddressController {
     @ResponseBody
     public ServiceResult getSupportSubwayLine(@RequestParam(name = "city_name") String cityEnName) {
         return subwayService.findAllSubwayByCityEnName(cityEnName);
+    }
+
+    /** 获取对应地铁线路所支持的地铁站点 **/
+    @GetMapping("/support/subway/station")
+    @ResponseBody
+    public ServiceResult getSupportSubwayStation(@RequestParam(name = "subway_id") Long subwayId) {
+        return subwayStationService.findAllStationBySubway(subwayId);
     }
 }

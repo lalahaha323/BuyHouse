@@ -1,6 +1,6 @@
 package com.lala.mapper;
 
-import com.lala.entity.Subway;
+import com.lala.entity.SubwayStation;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -13,7 +13,8 @@ import java.util.List;
 
 @Mapper
 @Repository
-public interface SubwayMapper {
-    /** 根据城市名称获取所有该城市的地铁线路信息 **/
-    List<Subway> findAllByCityEnName(@Param(value = "cityEnName") String cityEnName);
+public interface SubwayStationMapper {
+
+    /** 根据地铁线路ＩＤ获取所有该线路的站点信息 **/
+    List<SubwayStation> findAllBySubwayId(@Param(value = "subwayId") Long subwayId);
 }
