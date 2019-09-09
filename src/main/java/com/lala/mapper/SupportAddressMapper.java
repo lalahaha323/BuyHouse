@@ -20,4 +20,7 @@ public interface SupportAddressMapper {
     /** 根据城市名称获取所有该城市的区域信息 **/
     List<SupportAddress> findAllByLevelAndBelongTo(@Param(value = "level") String level,
                                                    @Param(value = "belongTo") String belongTo);
+    /** 根据一级名称和级别city查找对应的一级信息 **/
+    SupportAddress findByCityEnNameAndLevel(@Param(value = "enName") String enName,
+                                            @Param(value = "level") String level);
 }

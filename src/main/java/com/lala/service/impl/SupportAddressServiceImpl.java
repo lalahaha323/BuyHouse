@@ -4,7 +4,7 @@ import com.lala.entity.SupportAddress;
 import com.lala.enums.LevelEnum;
 import com.lala.enums.ResultEnum;
 import com.lala.mapper.SupportAddressMapper;
-import com.lala.service.AddressService;
+import com.lala.service.SupportAddressService;
 import com.lala.service.result.ServiceResult;
 import com.lala.web.dto.SupportAddressDTO;
 import org.modelmapper.ModelMapper;
@@ -13,13 +13,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author lala
  */
 
 @Service
-public class AddressServiceImpl implements AddressService {
+public class SupportAddressServiceImpl implements SupportAddressService {
 
     @Autowired
     SupportAddressMapper supportAddressMapper;
@@ -58,5 +59,15 @@ public class AddressServiceImpl implements AddressService {
             regionDTOList.add(supportAddressDTO);
         }
         return ServiceResult.ofSuccess(regionDTOList);
+    }
+
+    @Override
+    public ServiceResult findCityAndRegionByCNameAndRName(String cityEnName, String regionEnName) {
+        SupportAddress city = supportAddressMapper.findByCityEnNameAndLevel(cityEnName, LevelEnum.CITY.getValue());
+        if(city == null) {
+            return ServiceResult.ofResultEnum(ResultEnum.NOT_VALID_PARAM);
+        }
+
+        return null;
     }
 }

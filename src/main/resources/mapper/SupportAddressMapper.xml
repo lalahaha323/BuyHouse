@@ -10,4 +10,8 @@
         SELECT * FROM support_address
         WHERE belong_to = #{belongTo} AND level = #{level}
     </select>
+    <select id="findByCityEnNameAndLevel" resultType="com.lala.entity.SupportAddress">
+        SELECT * FROM support_address
+        WHERE en_name = #{enName} AND level = #{level}
+    </select>
 </mapper>
