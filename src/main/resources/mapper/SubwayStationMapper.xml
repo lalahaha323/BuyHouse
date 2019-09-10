@@ -7,4 +7,8 @@
         SELECT * FROM subway_station
         WHERE subway_id = #{subwayId}
     </select>
+    <select id="findBySubwayStationId" resultType="com.lala.entity.SubwayStation">
+        SELECT * FROM subway_station
+        WHERE id = #{id}
+    </select>
 </mapper>

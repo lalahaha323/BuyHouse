@@ -6,4 +6,8 @@
         SELECT * FROM subway
         WHERE city_en_name = #{cityEnName}
     </select>
+    <select id="findBySubwayId" resultType="com.lala.entity.Subway">
+        SELECT * FROM subway
+        WHERE id = #{id}
+    </select>
 </mapper>
