@@ -5,14 +5,18 @@ import com.lala.entity.HouseDetail;
 import com.lala.entity.Subway;
 import com.lala.entity.SubwayStation;
 import com.lala.enums.ResultEnum;
+import com.lala.mapper.HouseMapper;
 import com.lala.mapper.SubwayMapper;
 import com.lala.mapper.SubwayStationMapper;
 import com.lala.service.HouseService;
 import com.lala.service.result.ServiceResult;
+import com.lala.utils.LoginUserUtil;
 import com.lala.web.form.HouseForm;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 /**
  * @author lala
@@ -25,6 +29,8 @@ public class HouseServiceImpl implements HouseService {
     @Autowired
     SubwayStationMapper subwayStationMapper;
     @Autowired
+    HouseMapper houseMapper;
+    @Autowired
     ModelMapper modelMapper;
     @Override
     public void save(HouseForm houseForm) {
@@ -32,6 +38,12 @@ public class HouseServiceImpl implements HouseService {
 
         House house = new House();
         modelMapper.map(houseForm, house);
+        Date now = new Date();
+        house.setCreateTime(now);
+        house.setLastUpdateTime(now);
+        house.setAdminId(LoginUserUtil.getLoginUserId());
+        house.setStatus(0);
+        houseMapper.save(house);
 
 
 
