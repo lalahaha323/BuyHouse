@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lala.mapper.HouseDetailMapper">
+
+    <insert id="save" parameterType="com.lala.entity.HouseDetail">
+        INSERT INTO house_detail
+        VALUES (#{houseDetail.description},
+                #{houseDetail.layoutDesc},
+                #{houseDetail.traffic},
+                #{houseDetail.roundService},
+                #{houseDetail.rentWay},
+                #{houseDetail.address},
+                #{houseDetail.subwayLineId},
+                #{houseDetail.subwayLineName},
+                #{houseDetail.subwayStationId},
+                #{houseDetail.subwayStationName},
+                #{houseDetail.houseId})
+    </insert>
+</mapper>

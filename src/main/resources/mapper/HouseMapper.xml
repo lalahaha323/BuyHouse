@@ -4,6 +4,26 @@
 
     <insert id="save" parameterType="com.lala.entity.House" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO house
-        VALUES (#{house.title}, #{house.price}, #{house.area}, #{house.room}, #{house.floor}, #{house.totalFloor}, #{house.watchTimes}, #{house..buildYear}, #{house.status}, #{house.createTime}, #{house.lastUpdateTime}, #{house.cityEnName}, #{house.regionEnName}, #{house.cover}, #{house.direction}, #{house.distanceToSubway}, #{house.parlour}, #{house.district}, #{house.adminId}, #{house.bathroom}, #{house.street})
+        VALUES (#{house.title},
+                #{house.price},
+                #{house.area},
+                #{house.room},
+                #{house.floor},
+                #{house.totalFloor},
+                #{house.watchTimes},
+                #{house..buildYear},
+                #{house.status},
+                #{house.createTime},
+                #{house.lastUpdateTime},
+                #{house.cityEnName},
+                #{house.regionEnName},
+                #{house.cover},
+                #{house.direction},
+                #{house.distanceToSubway},
+                #{house.parlour},
+                #{house.district},
+                #{house.adminId},
+                #{house.bathroom},
+                #{house.street})
     </insert>
 </mapper>

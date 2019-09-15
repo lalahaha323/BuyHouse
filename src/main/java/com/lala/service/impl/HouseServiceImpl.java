@@ -2,10 +2,7 @@ package com.lala.service.impl;
 
 import com.lala.entity.*;
 import com.lala.enums.ResultEnum;
-import com.lala.mapper.HouseDetailMapper;
-import com.lala.mapper.HouseMapper;
-import com.lala.mapper.SubwayMapper;
-import com.lala.mapper.SubwayStationMapper;
+import com.lala.mapper.*;
 import com.lala.service.HouseService;
 import com.lala.service.result.ServiceResult;
 import com.lala.utils.LoginUserUtil;
@@ -34,6 +31,8 @@ public class HouseServiceImpl implements HouseService {
     @Autowired
     HouseDetailMapper houseDetailMapper;
     @Autowired
+    HousePictureMapper housePictureMapper;
+    @Autowired
     ModelMapper modelMapper;
     @Override
     public void save(HouseForm houseForm) {
@@ -51,7 +50,8 @@ public class HouseServiceImpl implements HouseService {
         houseDetail.setHouseId(house.getId());
         houseDetailMapper.save(houseDetail);
 
-
+        List<HousePicture> housePictureList = FillinPictureInfo(houseForm, house.getId());
+        housePictureMapper.save(housePictureList);
 
 
 
