@@ -45,6 +45,8 @@ public class HouseServiceImpl implements HouseService {
         house.setStatus(0);
         houseMapper.save(house);
 
+        houseDetail.setHouseId(house.getId());
+
 
 
 
@@ -65,7 +67,6 @@ public class HouseServiceImpl implements HouseService {
         houseDetail.setSubwayLineName(subway.getName());
         houseDetail.setSubwayStationId(houseForm.getSubwayStationId());
         houseDetail.setSubwayStationName(subwayStation.getName());
-        houseDetail.setHouseId(houseForm.getId());
         return houseDetail;
     }
 }
