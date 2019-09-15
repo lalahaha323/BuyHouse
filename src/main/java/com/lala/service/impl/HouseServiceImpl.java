@@ -1,6 +1,7 @@
 package com.lala.service.impl;
 
 import com.lala.entity.*;
+import com.lala.entity.HouseTag;
 import com.lala.enums.ResultEnum;
 import com.lala.mapper.*;
 import com.lala.service.HouseService;
@@ -55,6 +56,7 @@ public class HouseServiceImpl implements HouseService {
 
 
 
+
     }
 
     /** 房源详细信息对象填充 **/
@@ -91,5 +93,18 @@ public class HouseServiceImpl implements HouseService {
             pictureList.add(housePicture);
         }
         return pictureList;
+    }
+
+    /** 房源Tag信息填充 **/
+    private List<HouseTag> FillinTagInfo(HouseForm houseForm, Long houseId) {
+        List<String> tagList = houseForm.getTags();
+        if(tagList != null && !tagList.isEmpty()) {
+            List<HouseTag> houseTagList = new ArrayList<>();
+            for (String tag : tagList) {
+                houseTagList.add(new HouseTag(houseId, tag));
+            }
+            return houseTagList;
+        }
+        return null;
     }
 }
