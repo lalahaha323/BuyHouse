@@ -5,6 +5,7 @@ import com.lala.entity.HouseDetail;
 import com.lala.entity.Subway;
 import com.lala.entity.SubwayStation;
 import com.lala.enums.ResultEnum;
+import com.lala.mapper.HouseDetailMapper;
 import com.lala.mapper.HouseMapper;
 import com.lala.mapper.SubwayMapper;
 import com.lala.mapper.SubwayStationMapper;
@@ -31,6 +32,8 @@ public class HouseServiceImpl implements HouseService {
     @Autowired
     HouseMapper houseMapper;
     @Autowired
+    HouseDetailMapper houseDetailMapper;
+    @Autowired
     ModelMapper modelMapper;
     @Override
     public void save(HouseForm houseForm) {
@@ -46,6 +49,8 @@ public class HouseServiceImpl implements HouseService {
         houseMapper.save(house);
 
         houseDetail.setHouseId(house.getId());
+        houseDetailMapper.save(houseDetail);
+
 
 
 
