@@ -1,9 +1,6 @@
 package com.lala.service.impl;
 
-import com.lala.entity.House;
-import com.lala.entity.HouseDetail;
-import com.lala.entity.Subway;
-import com.lala.entity.SubwayStation;
+import com.lala.entity.*;
 import com.lala.enums.ResultEnum;
 import com.lala.mapper.HouseDetailMapper;
 import com.lala.mapper.HouseMapper;
@@ -13,11 +10,14 @@ import com.lala.service.HouseService;
 import com.lala.service.result.ServiceResult;
 import com.lala.utils.LoginUserUtil;
 import com.lala.web.form.HouseForm;
+import com.lala.web.form.PhotoForm;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author lala
@@ -73,5 +73,23 @@ public class HouseServiceImpl implements HouseService {
         houseDetail.setSubwayStationId(houseForm.getSubwayStationId());
         houseDetail.setSubwayStationName(subwayStation.getName());
         return houseDetail;
+    }
+
+    /** 图片信息填充 **/
+    private List<HousePicture> FillinPictureInfo(HouseForm houseForm, Long houseId) {
+        if(houseForm.getPhotos() == null || houseForm.getPhotos().isEmpty()) {
+            return null;
+        }
+        List<HousePicture> pictureList = new ArrayList<>();
+        for(PhotoForm photoForm : houseForm.getPhotos()) {
+            HousePicture housePicture = new HousePicture();
+            housePicture.setHouseId(houseId);
+            housePicture.setCdnPrefix("xx");
+            housePicture.setPath(photoForm.getPath());
+            housePicture.setWidth(photoForm.getWidth());
+            housePicture.setHeight(photoForm.getHeight());
+            pictureList.add(housePicture);
+        }
+        return pictureList;
     }
 }
