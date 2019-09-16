@@ -3,27 +3,27 @@
 <mapper namespace="com.lala.mapper.HouseMapper">
 
     <insert id="save" parameterType="com.lala.entity.House" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO house
-        VALUES (#{house.title},
-                #{house.price},
-                #{house.area},
-                #{house.room},
-                #{house.floor},
-                #{house.totalFloor},
-                #{house.watchTimes},
-                #{house..buildYear},
-                #{house.status},
-                #{house.createTime},
-                #{house.lastUpdateTime},
-                #{house.cityEnName},
-                #{house.regionEnName},
-                #{house.cover},
-                #{house.direction},
-                #{house.distanceToSubway},
-                #{house.parlour},
-                #{house.district},
-                #{house.adminId},
-                #{house.bathroom},
-                #{house.street})
+        INSERT INTO house (title, price, area, room, floor, total_floor, watch_times, build_year, status, create_time, last_update_time, city_en_name, region_en_name, cover, direction, distance_to_subway, parlour, district, admin_id, bathroom, street)
+        VALUES (#{title},
+                #{price},
+                #{area},
+                #{room},
+                #{floor},
+                #{totalFloor},
+                #{watchTimes},
+                #{buildYear},
+                #{status},
+                #{createTime},
+                #{lastUpdateTime},
+                #{cityEnName},
+                #{regionEnName},
+                #{cover},
+                #{direction},
+                #{distanceToSubway},
+                #{parlour},
+                #{district},
+                #{adminId},
+                #{bathroom},
+                #{street})
     </insert>
 </mapper>
