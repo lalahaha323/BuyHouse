@@ -12,5 +12,5 @@ import org.springframework.stereotype.Repository;
 @Mapper
 @Repository
 public interface HouseDetailMapper {
-    void save(@Param("houseDetail") HouseDetail houseDetail);
+    void save(HouseDetail houseDetail);
 }

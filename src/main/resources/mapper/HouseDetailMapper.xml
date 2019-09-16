@@ -3,17 +3,17 @@
 <mapper namespace="com.lala.mapper.HouseDetailMapper">
 
     <insert id="save" parameterType="com.lala.entity.HouseDetail">
-        INSERT INTO house_detail
-        VALUES (#{houseDetail.description},
-                #{houseDetail.layoutDesc},
-                #{houseDetail.traffic},
-                #{houseDetail.roundService},
-                #{houseDetail.rentWay},
-                #{houseDetail.address},
-                #{houseDetail.subwayLineId},
-                #{houseDetail.subwayLineName},
-                #{houseDetail.subwayStationId},
-                #{houseDetail.subwayStationName},
-                #{houseDetail.houseId})
+        INSERT INTO house_detail (description,layout_desc,traffic,round_service,rent_way,address,subway_line_id,subway_line_name,subway_station_id,subway_station_name,house_id)
+        VALUES (#{description},
+                #{layoutDesc},
+                #{traffic},
+                #{roundService},
+                #{rentWay},
+                #{address},
+                #{subwayLineId},
+                #{subwayLineName},
+                #{subwayStationId},
+                #{subwayStationName},
+                #{houseId})
     </insert>
 </mapper>
