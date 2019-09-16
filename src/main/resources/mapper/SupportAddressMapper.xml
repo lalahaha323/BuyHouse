@@ -14,7 +14,7 @@
         SELECT * FROM support_address
         WHERE en_name = #{enName} AND level = #{level}
     </select>
-    <select id="findByRegionEnNameAndLevel" resultType="com.lala.entity.SupportAddress">
+    <select id="findByRegionEnNameAndBelongTo" resultType="com.lala.entity.SupportAddress">
         SELECT * FROM support_address
         WHERE en_name = #{enName} AND belong_to = #{belongTo}
     </select>

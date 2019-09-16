@@ -34,6 +34,8 @@ public class HouseServiceImpl implements HouseService {
     @Autowired
     HousePictureMapper housePictureMapper;
     @Autowired
+    HouseTagMapper houseTagMapper;
+    @Autowired
     ModelMapper modelMapper;
     @Override
     public void save(HouseForm houseForm) {
@@ -54,6 +56,8 @@ public class HouseServiceImpl implements HouseService {
         List<HousePicture> housePictureList = FillinPictureInfo(houseForm, house.getId());
         housePictureMapper.save(housePictureList);
 
+        List<HouseTag> houseTagList = FillinTagInfo(houseForm, house.getId());
+        houseTagMapper.save(houseTagList);
 
 
 

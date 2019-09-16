@@ -1,10 +1,9 @@
 package com.lala.mapper;
 
-import com.lala.entity.HousePicture;
+import com.lala.entity.House;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 /**
  * @author lala
@@ -12,6 +11,6 @@ import java.util.List;
 
 @Mapper
 @Repository
-public interface HousePictureMapper {
-    void save(List<HousePicture> pictureList);
+public interface HouseMapper {
+    void save(@Param(value = "house") House house);
 }
