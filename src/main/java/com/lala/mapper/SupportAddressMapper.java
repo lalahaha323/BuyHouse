@@ -24,6 +24,6 @@ public interface SupportAddressMapper {
     SupportAddress findByCityEnNameAndLevel(@Param(value = "enName") String enName,
                                             @Param(value = "level") String level);
     /** 根据二级名称和上一级名称查找对应的二级区域信息 **/
-    SupportAddress findByRegionEnNameAndLevel(@Param(value = "enName") String enName,
+    SupportAddress findByRegionEnNameAndBelongTo(@Param(value = "enName") String enName,
                                               @Param(value = "belongTo") String belongTo);
 }

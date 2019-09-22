@@ -17,4 +17,6 @@ public interface SubwayStationMapper {
 
     /** 根据地铁线路ＩＤ获取所有该线路的站点信息 **/
     List<SubwayStation> findAllBySubwayId(@Param(value = "subwayId") Long subwayId);
+    /** 根据地铁站ID获取地铁站信息 **/
+    SubwayStation findBySubwayStationId(@Param(value = "id") Long id);
 }

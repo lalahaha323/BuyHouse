@@ -16,4 +16,5 @@ import java.util.List;
 public interface SubwayMapper {
     /** 根据城市名称获取所有该城市的地铁线路信息 **/
     List<Subway> findAllByCityEnName(@Param(value = "cityEnName") String cityEnName);
+    Subway findBySubwayId(@Param(value = "id") Long id);
 }
