@@ -1,12 +1,16 @@
 package com.lala.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.lala.entity.*;
 import com.lala.entity.HouseTag;
 import com.lala.enums.ResultEnum;
 import com.lala.mapper.*;
 import com.lala.service.HouseService;
+import com.lala.service.result.ResultDataTableResponse;
 import com.lala.service.result.ServiceResult;
+import com.lala.utils.DatatableSearch;
 import com.lala.utils.LoginUserUtil;
+import com.lala.web.dto.HouseDTO;
 import com.lala.web.form.HouseForm;
 import com.lala.web.form.PhotoForm;
 import org.modelmapper.ModelMapper;
@@ -38,7 +42,7 @@ public class HouseServiceImpl implements HouseService {
     @Autowired
     ModelMapper modelMapper;
     @Override
-    public void save(HouseForm houseForm) {
+    public ServiceResult save(HouseForm houseForm) {
         HouseDetail houseDetail = FillinDetailInfo(houseForm);
 
         House house = new House();
@@ -59,9 +63,37 @@ public class HouseServiceImpl implements HouseService {
         List<HouseTag> houseTagList = FillinTagInfo(houseForm, house.getId());
         houseTagMapper.save(houseTagList);
 
-
-
+        return ServiceResult.ofSuccess(houseForm);
     }
+
+    @Override
+    public ResultDataTableResponse findAll(DatatableSearch searchBody) {
+        List<HouseDTO> houseDTOList = new ArrayList<>();
+
+        int start = searchBody.getStart();
+        int length = searchBody.getLength();
+        int pageNum = start / length + 1;
+        PageHelper.startPage(pageNum + 1, length);
+        List<House> houseList = houseMapper.finAll(searchBody);
+        for(House house : houseList) {
+            HouseDTO houseDTO = modelMapper.map(house, HouseDTO.class);
+            houseDTOList.add(houseDTO);
+        }
+
+        int total = houseMapper.countAll();
+
+        ResultDataTableResponse response = new ResultDataTableResponse(ResultEnum.SUCCESS);
+        response.setData(houseDTOList);
+        response.setRecordsFiltered(total);
+        response.setRecordsTotal(total);
+        response.setDraw(searchBody.getDraw());
+
+        return response;
+    }
+
+
+
+
 
     /** 房源详细信息对象填充 **/
     private HouseDetail FillinDetailInfo(HouseForm houseForm) {

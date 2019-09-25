@@ -26,4 +26,40 @@
                 #{bathroom},
                 #{street})
     </insert>
+    <select id="finAll" resultType="com.lala.entity.House">
+        SELECT * FROM house
+        <where>
+            1=1
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="city != null and city != ''">
+                and city_en_name =#{city}
+            </if>
+            <if test="title != null and title != ''">
+                and title =#{title}
+            </if>
+            <if test="createTimeMin != null ">
+                and create_time <![CDATA[ >= ]]> #{createTimeMin}
+            </if>
+            <if test="createTimeMax != null ">
+                and create_time <![CDATA[ < ]]> #{createTimeMax}
+            </if>
+        </where>
+        <choose>
+            <when test="orderBy != null and orderBy !=''">
+                <choose>
+                    <when test="direction != null and direction !=''">
+                        order by ${orderBy} ${direction}
+                    </when>
+                    <otherwise>
+                        order by ${orderBy} desc
+                    </otherwise>
+                </choose>
+            </when>
+        </choose>
+    </select>
+    <select id="countAll" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM house
+    </select>
 </mapper>
