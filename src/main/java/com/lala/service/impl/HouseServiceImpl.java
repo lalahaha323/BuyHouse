@@ -72,7 +72,7 @@ public class HouseServiceImpl implements HouseService {
 
         int start = searchBody.getStart();
         int length = searchBody.getLength();
-        int pageNum = start / length + 1;
+        int pageNum = start / length;
         PageHelper.startPage(pageNum + 1, length);
         List<House> houseList = houseMapper.finAll(searchBody);
         for(House house : houseList) {
