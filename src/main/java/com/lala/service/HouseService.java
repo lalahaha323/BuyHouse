@@ -3,8 +3,8 @@ package com.lala.service;
 import com.lala.service.result.ResultDataTableResponse;
 import com.lala.service.result.ServiceResult;
 import com.lala.utils.DatatableSearch;
-import com.lala.web.dto.HouseDTO;
-import com.lala.web.form.HouseForm;
+import com.lala.web.Form.HouseForm;
+
 
 import java.util.List;
 
