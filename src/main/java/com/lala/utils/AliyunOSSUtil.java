@@ -43,7 +43,7 @@ public class AliyunOSSUtil {
         PutObjectResult result = client.putObject(new PutObjectRequest(aliyunOssConfig.getBucketName(), fileUrl, new ByteArrayInputStream("lala".getBytes())));
         if (result != null) {
             log.info("------OSS文件上传成功------" + fileUrl);
-            return ServiceResult.ofResultEnum(ResultEnum.SUCCESS_UPLOAD_PICTURE);
+            return ServiceResult.ofResultEnum(ResultEnum.SUCCESS);
         }
         return ServiceResult.ofResultEnum(ResultEnum.ERROR_UPLOAD_PICTURE);
     }

@@ -21,4 +21,8 @@ public interface SupportAddressService {
     ServiceResult findAllRegionsByCityName(String cityEnName);
     /** 根据城市英文简写获取具体区域信息，bj获取一级区域信息，xx县获取二级区域信息 **/
     Map<LevelEnum, SupportAddressDTO> findCityAndRegionByCNameAndRName(String cityEnName, String regionEnName);
+    /** 根据城市英文名称获取该城市信息 **/
+    SupportAddressDTO findCityByCityEnName(String cityEnName);
+    /** 根据区域英文名称获取该区域信息 **/
+    SupportAddressDTO findRegionByRegionEnName(String regionEnName);
 }

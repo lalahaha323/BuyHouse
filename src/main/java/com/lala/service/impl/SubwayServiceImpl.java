@@ -38,4 +38,11 @@ public class SubwayServiceImpl implements SubwayService {
         }
         return ServiceResult.ofSuccess(subwayDTOList);
     }
+
+    @Override
+    public SubwayDTO findSubwayBySubwayLineId(Long id) {
+        Subway subway = subwayMapper.findBySubwayId(id);
+        SubwayDTO subwayDTO = modelMapper.map(subway, SubwayDTO.class);
+        return subwayDTO;
+    }
 }

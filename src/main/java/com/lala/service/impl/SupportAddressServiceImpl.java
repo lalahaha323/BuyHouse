@@ -77,4 +77,18 @@ public class SupportAddressServiceImpl implements SupportAddressService {
 
         return result;
     }
+
+    @Override
+    public SupportAddressDTO findCityByCityEnName(String cityEnName) {
+        SupportAddress supportAddress = supportAddressMapper.findByCityEnNameAndLevel(cityEnName, LevelEnum.CITY.getValue());
+        SupportAddressDTO supportAddressDTO = modelMapper.map(supportAddress, SupportAddressDTO.class);
+        return supportAddressDTO;
+    }
+
+    @Override
+    public SupportAddressDTO findRegionByRegionEnName(String regionEnName) {
+        SupportAddress supportAddress = supportAddressMapper.findByCityEnNameAndLevel(regionEnName, LevelEnum.REGION.getValue());
+        SupportAddressDTO supportAddressDTO = modelMapper.map(supportAddress, SupportAddressDTO.class);
+        return supportAddressDTO;
+    }
 }

@@ -1,19 +1,19 @@
 package com.lala.web.controller.admin;
 
+import com.lala.entity.SubwayStation;
+import com.lala.entity.SupportAddress;
 import com.lala.enums.LevelEnum;
 import com.lala.enums.ResultEnum;
-import com.lala.service.AliyunService;
-import com.lala.service.HouseService;
-import com.lala.service.SupportAddressService;
+import com.lala.service.*;
 import com.lala.service.result.ResultDataTableResponse;
 import com.lala.service.result.ServiceResult;
 import com.lala.utils.DatatableSearch;
-import com.lala.web.dto.HouseDTO;
-import com.lala.web.dto.SupportAddressDTO;
+import com.lala.web.dto.*;
 import com.lala.web.form.HouseForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +36,10 @@ public class AdminController {
     SupportAddressService supportAddressService;
     @Autowired
     HouseService houseService;
+    @Autowired
+    SubwayService subwayService;
+    @Autowired
+    SubwayStationService subwayStationService;
 
     /** 后台管理中心 **/
     @GetMapping("/center")
@@ -112,5 +116,35 @@ public class AdminController {
         }
 
         return houseService.findAll(searchBody);
+    }
+
+    /** 房源编辑页 某个房源要编辑，这个id就是这个房源的id**/
+    @GetMapping("/house/edit")
+    public String houseEditPage(@RequestParam(value = "id") Long id, Model model) {
+        if(id == null || id < 1) {
+            return "404";
+        }
+
+        ServiceResult<HouseDTO> serviceResult = houseService.findAllOne(id);
+        if(serviceResult.getCode() != 200) {
+            return "404";
+        }
+        HouseDTO houseDTO = serviceResult.getData();
+        String cityEnName = houseDTO.getCityEnName();
+        String regionEnName = houseDTO.getRegionEnName();
+        SupportAddressDTO cityDTO = supportAddressService.findCityByCityEnName(cityEnName);
+        SupportAddressDTO regionDTO = supportAddressService.findRegionByRegionEnName(regionEnName);
+
+        HouseDetailDTO houseDetailDTO = houseDTO.getHouseDetail();
+        SubwayDTO subwayDTO = subwayService.findSubwayBySubwayLineId(houseDetailDTO.getSubwayLineId());
+        SubwayStationDTO subwayStationDTO = subwayStationService.findBySubwayStationId(houseDetailDTO.getSubwayStationId());
+
+        model.addAttribute("house", houseDTO);
+        model.addAttribute("city", cityDTO);
+        model.addAttribute("region", regionDTO);
+        model.addAttribute("subway", subwayDTO);
+        model.addAttribute("station", subwayStationDTO);
+
+        return "admin/house-edit";
     }
 }

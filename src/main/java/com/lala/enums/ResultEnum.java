@@ -31,7 +31,13 @@ public enum ResultEnum {
     ERROR_FORMATTER(61000, "转换失败"),
     //图片为空
     ERROR_EMPTY_PICTURE(61001, "图片为空"),
-    ERROR_UPLOAD_PICTURE(61002, "图片上传失败")
+    ERROR_UPLOAD_PICTURE(61002, "图片上传失败"),
+
+    //线路问题
+    ERROR_EMPTY_SUBWAY(70000, "没有地铁线路"),
+    ERROR_EMPTY_SUBWAYSTATION(70001, "没有地铁站"),
+    //数据问题
+    ERROR_EMPTY_HOUSE(71000, "没有房子基础信息")
     ;
 
     private Integer code;
