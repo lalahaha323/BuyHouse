@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lala.mapper.HouseSubscribeMapper">
+
+    <select id="findOneByHIdAndUId" resultType="com.lala.entity.HouseSubscribe">
+        SELECT * FROM house_subscribe
+        WHERE house_id = #{houseId} AND user_id = #{UserId}
+    </select>
+</mapper>

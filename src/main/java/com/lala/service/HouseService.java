@@ -17,4 +17,6 @@ public interface HouseService {
     ServiceResult save(HouseForm houseForm);
     /** 查询 **/
     ResultDataTableResponse findAll(DatatableSearch datatableSearch);
+    /** 查询房屋详情 detail+tag+pictures**/
+    ServiceResult findAllOne(Long id);
 }

@@ -16,4 +16,8 @@
                 #{subwayStationName},
                 #{houseId})
     </insert>
+    <select id="findOneById" resultType="com.lala.entity.HouseDetail">
+        SELECT * FROM house_detail
+        WHERE house_id = #{id}
+    </select>
 </mapper>

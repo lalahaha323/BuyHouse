@@ -62,4 +62,8 @@
     <select id="countAll" resultType="java.lang.Integer">
         SELECT COUNT(*) FROM house
     </select>
+    <select id="findOneById" resultType="com.lala.entity.House">
+        SELECT * FROM house
+        WHERE id = #{id}
+    </select>
 </mapper>

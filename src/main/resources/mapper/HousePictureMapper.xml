@@ -24,4 +24,8 @@
             )
         </foreach>
     </insert>
+    <select id="findAllById" resultType="com.lala.entity.HousePicture">
+        SELECT * FROM house_picture
+        WHERE house_id = #{id}
+    </select>
 </mapper>

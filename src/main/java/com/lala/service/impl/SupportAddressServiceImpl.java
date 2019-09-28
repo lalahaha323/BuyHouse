@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -62,12 +63,18 @@ public class SupportAddressServiceImpl implements SupportAddressService {
     }
 
     @Override
-    public ServiceResult findCityAndRegionByCNameAndRName(String cityEnName, String regionEnName) {
+    public Map<LevelEnum, SupportAddressDTO> findCityAndRegionByCNameAndRName(String cityEnName, String regionEnName) {
+        Map<LevelEnum, SupportAddressDTO> result = new HashMap<>();
+
         SupportAddress city = supportAddressMapper.findByCityEnNameAndLevel(cityEnName, LevelEnum.CITY.getValue());
-        if(city == null) {
-            return ServiceResult.ofResultEnum(ResultEnum.NOT_VALID_PARAM);
+        if(city != null) {
+            result.put(LevelEnum.CITY, modelMapper.map(city, SupportAddressDTO.class));
+        }
+        SupportAddress region = supportAddressMapper.findByRegionEnNameAndBelongTo(regionEnName, cityEnName);
+        if(region != null) {
+            result.put(LevelEnum.REGION, modelMapper.map(region, SupportAddressDTO.class));
         }
 
-        return null;
+        return result;
     }
 }

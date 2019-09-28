@@ -11,6 +11,8 @@ import com.lala.service.result.ServiceResult;
 import com.lala.utils.DatatableSearch;
 import com.lala.utils.LoginUserUtil;
 import com.lala.web.dto.HouseDTO;
+import com.lala.web.dto.HouseDetailDTO;
+import com.lala.web.dto.HousePictureDTO;
 import com.lala.web.form.HouseForm;
 import com.lala.web.form.PhotoForm;
 import org.modelmapper.ModelMapper;
@@ -39,6 +41,8 @@ public class HouseServiceImpl implements HouseService {
     HousePictureMapper housePictureMapper;
     @Autowired
     HouseTagMapper houseTagMapper;
+    @Autowired
+    HouseSubscribeMapper houseSubscribeMapper;
     @Autowired
     ModelMapper modelMapper;
     @Override
@@ -91,8 +95,52 @@ public class HouseServiceImpl implements HouseService {
         return response;
     }
 
+    @Override
+    public ServiceResult findAllOne(Long id) {
+        /** House **/
+        House house = houseMapper.findOneById(id);
+        if (house == null) {
+            return ServiceResult.ofResultEnum(ResultEnum.ERROR_EMPTY_HOUSE);
+        }
+        HouseDTO houseDTO = modelMapper.map(house, HouseDTO.class);
 
+        /** HouseDetail **/
+        HouseDetail houseDetail = houseDetailMapper.findOneById(id);
+        HouseDetailDTO houseDetailDTO = modelMapper.map(houseDetail, HouseDetailDTO.class);
 
+        /** HouseTag **/
+        List<HouseTag> houseTagList = houseTagMapper.findAllById(id);
+        List<String> tags = new ArrayList<>();
+        for (HouseTag houseTag : houseTagList) {
+            tags.add(houseTag.getName());
+        }
+
+        /** HousePicture **/
+        List<HousePicture> pictureList = housePictureMapper.findAllById(id);
+        List<HousePictureDTO> pictureDTOList = new ArrayList<>();
+        for (HousePicture housePicture : pictureList) {
+            HousePictureDTO housePictureDTO = modelMapper.map(housePicture, HousePictureDTO.class);
+            pictureDTOList.add(housePictureDTO);
+        }
+
+        /** 填充HouseDTO，通过houseDetail，PictureDTOList，Tags **/
+        houseDTO.setHouseDetail(houseDetailDTO);
+        houseDTO.setPictures(pictureDTOList);
+        houseDTO.setTags(tags);
+
+        /** 添加adminID **/
+        if(LoginUserUtil.getLoginUserId() > 0) {
+            //有登录用户
+            HouseSubscribe subscribe = houseSubscribeMapper.findOneByHIdAndUId(house.getId(), LoginUserUtil.getLoginUserId());
+            if(subscribe == null) {
+                houseDTO.setSubscribeStatus(0);
+            } else {
+                houseDTO.setSubscribeStatus(subscribe.getStatus());
+            }
+        }
+
+        return ServiceResult.ofSuccess(houseDTO);
+    }
 
 
     /** 房源详细信息对象填充 **/
