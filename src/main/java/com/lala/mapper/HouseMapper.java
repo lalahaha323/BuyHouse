@@ -19,4 +19,5 @@ public interface HouseMapper {
     List<House> finAll(DatatableSearch searchBody);
     int countAll();
     House findOneById(@Param(value = "id") Long id);
+    void update(House house);
 }
