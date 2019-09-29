@@ -14,4 +14,5 @@ import org.springframework.stereotype.Repository;
 public interface HouseDetailMapper {
     void save(HouseDetail houseDetail);
     HouseDetail findOneById(@Param(value = "id") Long id);
+    void update(HouseDetail houseDetail);
 }

@@ -16,6 +16,45 @@
                 #{subwayStationName},
                 #{houseId})
     </insert>
+    <update id="update">
+        update house_detail
+        <set>
+            <if test="description !=null and description !=''">
+                description= #{description},
+            </if>
+            <if test="layoutDesc !=null and layoutDesc !=''">
+                layout_desc= #{layoutDesc},
+            </if>
+            <if test="traffic !=null and traffic !=''">
+                traffic= #{traffic},
+            </if>
+            <if test="roundService !=null and roundService !=''">
+                round_service= #{roundService},
+            </if>
+            <if test="rentWay !=null and rentWay !=''">
+                rent_way= #{rentWay},
+            </if>
+            <if test="address !=null and address !=''">
+                address= #{address},
+            </if>
+            <if test="subwayLineId !=null and subwayLineId !=''">
+                subway_line_id= #{subwayLineId},
+            </if>
+            <if test="subwayLineName !=null and subwayLineName !=''">
+                subway_line_name= #{subwayLineName},
+            </if>
+            <if test="subwayStationId !=null and subwayStationId !=''">
+                subway_station_id= #{subwayStationId},
+            </if>
+            <if test="subwayStationName !=null and subwayStationName !=''">
+                subway_station_name= #{subwayStationName},
+            </if>
+            <if test="houseId !=null and houseId !=''">
+                house_id= #{houseId}
+            </if>
+        </set>
+        where id=#{id}
+    </update>
     <select id="findOneById" resultType="com.lala.entity.HouseDetail">
         SELECT * FROM house_detail
         WHERE house_id = #{id}
