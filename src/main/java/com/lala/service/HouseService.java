@@ -19,4 +19,6 @@ public interface HouseService {
     ResultDataTableResponse findAll(DatatableSearch datatableSearch);
     /** 查询房屋详情 detail+tag+pictures**/
     ServiceResult findAllOne(Long id);
+    /** 修改房屋 **/
+    ServiceResult update(HouseForm houseForm);
 }

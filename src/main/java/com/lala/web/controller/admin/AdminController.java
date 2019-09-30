@@ -147,4 +147,11 @@ public class AdminController {
 
         return "admin/house-edit";
     }
+
+    /** 编辑接口 **/
+    @PostMapping("/house/edit")
+    @ResponseBody
+    public ServiceResult saveHouse(@ModelAttribute("form-house-edit") HouseForm houseForm) {
+        return houseService.update(houseForm);
+    }
 }

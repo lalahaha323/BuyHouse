@@ -142,6 +142,40 @@ public class HouseServiceImpl implements HouseService {
         return ServiceResult.ofSuccess(houseDTO);
     }
 
+    /** 修改房屋 **/
+    @Override
+    public ServiceResult update(HouseForm houseForm) {
+        House house = houseMapper.findOneById(houseForm.getId());
+        if(house == null) {
+            return ServiceResult.ofResultEnum(ResultEnum.ERROR_EMPTY_HOUSE);
+        }
+
+        HouseDetail houseDetail = houseDetailMapper.findOneById(house.getId());
+        if(houseDetail == null) {
+            return ServiceResult.ofResultEnum(ResultEnum.ERROR_EMPTY_HOUSEDETAIL);
+        }
+
+        /** 修改房屋详情 **/
+        HouseDetail newhouseDetail = FillinDetailInfo(houseForm);
+        newhouseDetail.setId(houseDetail.getId());
+        houseDetailMapper.update(newhouseDetail);
+
+        /** 房屋图片添加 **/
+        if (houseForm.getPhotos() != null) {
+            List<HousePicture> pictureList = FillinPictureInfo(houseForm, houseForm.getId());
+            housePictureMapper.save(pictureList);
+        }
+        if(houseForm.getCover() == null) {
+            houseForm.setCover(house.getCover());
+        }
+
+        /** 修改房屋基本 **/
+        modelMapper.map(houseForm, house);
+        house.setLastUpdateTime(new Date());
+        houseMapper.update(house);
+        return ServiceResult.ofResultEnum(ResultEnum.SUCCESS);
+    }
+
 
     /** 房源详细信息对象填充 **/
     private HouseDetail FillinDetailInfo(HouseForm houseForm) {
