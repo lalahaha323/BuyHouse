@@ -16,8 +16,16 @@
             )
         </foreach>
     </insert>
+    <delete id="deleteById">
+        DELETE FROM house_tag
+        WHERE id = #{id}
+    </delete>
     <select id="findAllById" resultType="com.lala.entity.HouseTag">
         SELECT * FROM house_tag
         WHERE house_id = #{id}
+    </select>
+    <select id="findByHouseIdAndName" resultType="com.lala.entity.HouseTag">
+        SELECT * FROM house_tag
+        WHERE house_id = #{house_id} AND name = #{name}
     </select>
 </mapper>

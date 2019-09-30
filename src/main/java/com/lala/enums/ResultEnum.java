@@ -38,7 +38,9 @@ public enum ResultEnum {
     ERROR_EMPTY_SUBWAYSTATION(70001, "没有地铁站"),
     //数据问题
     ERROR_EMPTY_HOUSE(71000, "房屋不存在"),
-    ERROR_EMPTY_HOUSEDETAIL(71001, "房屋详情不存在")
+    ERROR_EMPTY_HOUSEDETAIL(71001, "房屋详情不存在"),
+    ERROR_EMPTY_HOUSETAG(71002, "房屋标签不存在"),
+    ERROR_DATA(71003, "数据有问题")
     ;
 
     private Integer code;

@@ -15,4 +15,7 @@ import java.util.List;
 public interface HouseTagMapper {
     void save(List<HouseTag> houseTagList);
     List<HouseTag> findAllById(@Param(value = "id") Long id);
+    HouseTag findByHouseIdAndName(@Param(value = "house_id") Long houseId,
+                                  @Param(value = "name") String name);
+    void deleteById(@Param(value = "id")Long id);
 }

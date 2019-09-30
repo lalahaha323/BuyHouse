@@ -1,5 +1,6 @@
 package com.lala.web.controller.admin;
 
+import com.google.common.base.Strings;
 import com.lala.entity.SubwayStation;
 import com.lala.entity.SupportAddress;
 import com.lala.enums.LevelEnum;
@@ -40,6 +41,8 @@ public class AdminController {
     SubwayService subwayService;
     @Autowired
     SubwayStationService subwayStationService;
+    @Autowired
+    HouseTagService houseTagService;
 
     /** 后台管理中心 **/
     @GetMapping("/center")
@@ -154,4 +157,16 @@ public class AdminController {
     public ServiceResult saveHouse(@ModelAttribute("form-house-edit") HouseForm houseForm) {
         return houseService.update(houseForm);
     }
+
+    /** 移除标签接口 **/
+    @DeleteMapping("/house/tag")
+    @ResponseBody
+    public ServiceResult removeHouseTag(@RequestParam(value = "house_id") Long houseId,
+                                        @RequestParam(value = "tag") String tag) {
+        if (houseId < 1 || Strings.isNullOrEmpty(tag)) {
+            return ServiceResult.ofResultEnum(ResultEnum.ERROR_DATA);
+        }
+        return houseTagService.deleteTagsByHouseIdAndTag(houseId, tag);
+    }
+
 }
