@@ -35,4 +35,21 @@ public class HouseTagServiceImpl implements HouseTagService {
         houseTagMapper.deleteById(houseTag.getId());
         return ServiceResult.ofResultEnum(ResultEnum.SUCCESS);
     }
+
+    @Override
+    public ServiceResult addTagByHouseIdAndTag(Long houseId, String tag) {
+        House house = houseMapper.findOneById(houseId);
+        if (house == null) {
+            return ServiceResult.ofResultEnum(ResultEnum.ERROR_EMPTY_HOUSE);
+        }
+
+        HouseTag houseTag = houseTagMapper.findByHouseIdAndName(houseId, tag);
+        if (houseTag != null) {
+            return ServiceResult.ofResultEnum(ResultEnum.ERROR_EMPTY_HOUSETAG);
+        }
+
+        HouseTag newHouseTag = new HouseTag(houseId, tag);
+        houseTagMapper.saveOne(newHouseTag);
+        return ServiceResult.ofResultEnum(ResultEnum.SUCCESS);
+    }
 }

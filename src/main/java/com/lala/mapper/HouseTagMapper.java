@@ -18,4 +18,5 @@ public interface HouseTagMapper {
     HouseTag findByHouseIdAndName(@Param(value = "house_id") Long houseId,
                                   @Param(value = "name") String name);
     void deleteById(@Param(value = "id")Long id);
+    void saveOne(HouseTag houseTag);
 }

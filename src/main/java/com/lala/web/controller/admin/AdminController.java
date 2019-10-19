@@ -169,4 +169,14 @@ public class AdminController {
         return houseTagService.deleteTagsByHouseIdAndTag(houseId, tag);
     }
 
+    /** 增加标签接口 **/
+    @PostMapping("/house/tag")
+    @ResponseBody
+    public ServiceResult addHouseTag(@RequestParam(value = "house_id") Long houseId,
+                                     @RequestParam(value = "tag") String tag) {
+        if (houseId < 1 || Strings.isNullOrEmpty(tag)) {
+            return ServiceResult.ofResultEnum(ResultEnum.ERROR_DATA);
+        }
+        return houseTagService.addTagByHouseIdAndTag(houseId, tag);
+    }
 }

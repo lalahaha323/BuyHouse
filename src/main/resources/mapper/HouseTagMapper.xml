@@ -16,6 +16,10 @@
             )
         </foreach>
     </insert>
+    <insert id="saveOne">
+        INSERT INTO house_tag (house_id, name)
+        VALUES (#{houseId}, #{name})
+    </insert>
     <delete id="deleteById">
         DELETE FROM house_tag
         WHERE id = #{id}
