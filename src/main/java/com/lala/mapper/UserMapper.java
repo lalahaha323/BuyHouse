@@ -14,4 +14,6 @@ import org.springframework.stereotype.Repository;
 public interface UserMapper {
 
     User findByName(@Param("name") String name);
+    User findById(@Param("id") Long id);
+    void updateUser(User user);
 }

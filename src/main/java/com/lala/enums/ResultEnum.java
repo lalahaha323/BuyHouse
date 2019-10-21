@@ -41,7 +41,10 @@ public enum ResultEnum {
     ERROR_EMPTY_HOUSEDETAIL(71001, "房屋详情不存在"),
     ERROR_EMPTY_HOUSETAG(71002, "房屋标签不存在"),
     ERROR_EXIST_HOUSETAG(71003, "房屋标签已经存在"),
-    ERROR_DATA(71004, "数据有问题")
+    ERROR_DATA(71004, "数据有问题"),
+    ERROR_EMPTY_DATA(71005, "修改类型为空"),
+    ERROR_MISMATCH_EMAIL(71006, "不支持的邮箱格式"),
+    ERROR_NO_FILED(71007, "不支持的属性")
     ;
 
     private Integer code;
