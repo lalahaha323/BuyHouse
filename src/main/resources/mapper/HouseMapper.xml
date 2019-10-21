@@ -53,6 +53,11 @@
             street             = #{street}
         WHERE id = #{id};
     </update>
+    <update id="updateStatus">
+        update house
+        set status = #{status}
+        where id = #{id}
+    </update>
     <select id="finAll" resultType="com.lala.entity.House">
         SELECT * FROM house
         <where>

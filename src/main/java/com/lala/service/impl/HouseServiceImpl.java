@@ -176,6 +176,26 @@ public class HouseServiceImpl implements HouseService {
         return ServiceResult.ofResultEnum(ResultEnum.SUCCESS);
     }
 
+    /** 修改房屋状态 **/
+    @Override
+    public ServiceResult updateStatus(Long id, int status) {
+        House house = houseMapper.findOneById(id);
+        if (house == null) {
+            return ServiceResult.ofResultEnum(ResultEnum.ERROR_EMPTY_HOUSE);
+        }
+        if (house.getStatus() == status) {
+            return ServiceResult.ofResultEnum(ResultEnum.ERROR_STATUS_NOCHANGE);
+        }
+        switch (house.getStatus()) {
+            case 2:
+                return ServiceResult.ofResultEnum(ResultEnum.ERROR_STATUS_NORENT);
+            case 3:
+                return ServiceResult.ofResultEnum(ResultEnum.ERROR_STATUS_NODELETE);
+        }
+        houseMapper.updateStatus(id, status);
+        return ServiceResult.ofResultEnum(ResultEnum.SUCCESS);
+    }
+
 
     /** 房源详细信息对象填充 **/
     private HouseDetail FillinDetailInfo(HouseForm houseForm) {

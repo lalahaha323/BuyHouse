@@ -20,4 +20,5 @@ public interface HouseMapper {
     int countAll();
     House findOneById(@Param(value = "id") Long id);
     void update(House house);
+    void updateStatus(@Param(value = "id") Long id, @Param(value = "status") int status);
 }

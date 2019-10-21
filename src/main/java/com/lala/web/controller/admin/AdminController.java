@@ -1,8 +1,8 @@
 package com.lala.web.controller.admin;
 
 import com.google.common.base.Strings;
-import com.lala.entity.SubwayStation;
-import com.lala.entity.SupportAddress;
+import com.lala.enums.HouseOperation;
+import com.lala.enums.HouseStatusEnum;
 import com.lala.enums.LevelEnum;
 import com.lala.enums.ResultEnum;
 import com.lala.service.*;
@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -178,5 +177,27 @@ public class AdminController {
             return ServiceResult.ofResultEnum(ResultEnum.ERROR_DATA);
         }
         return houseTagService.addTagByHouseIdAndTag(houseId, tag);
+    }
+
+    /** 增加审核接口 **/
+    @PutMapping("/house/operate/{id}/{operation}")
+    @ResponseBody
+    public ServiceResult HouseOperate(@PathVariable(value = "id") Long id,
+                                      @PathVariable(value = "operation") int operation) {
+        if (id <= 0) {
+            return ServiceResult.ofResultEnum(ResultEnum.ERROR_EMPTY_HOUSE);
+        }
+        switch (operation) {
+            case 1:
+                return houseService.updateStatus(id, 1);
+            case 2:
+                return houseService.updateStatus(id, 2);
+            case 3:
+                return houseService.updateStatus(id, 3);
+            case 4:
+                return houseService.updateStatus(id, 4);
+            default:
+                return ServiceResult.ofResultEnum(ResultEnum.NOT_VALID_PARAM);
+        }
     }
 }

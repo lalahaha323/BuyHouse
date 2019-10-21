@@ -21,4 +21,6 @@ public interface HouseService {
     ServiceResult findAllOne(Long id);
     /** 修改房屋 **/
     ServiceResult update(HouseForm houseForm);
+    /** 修改房屋状态 **/
+    ServiceResult updateStatus(Long id, int status);
 }
