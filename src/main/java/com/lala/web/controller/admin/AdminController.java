@@ -188,14 +188,14 @@ public class AdminController {
             return ServiceResult.ofResultEnum(ResultEnum.ERROR_EMPTY_HOUSE);
         }
         switch (operation) {
-            case 1:
-                return houseService.updateStatus(id, 1);
-            case 2:
-                return houseService.updateStatus(id, 2);
-            case 3:
-                return houseService.updateStatus(id, 3);
-            case 4:
-                return houseService.updateStatus(id, 4);
+            case HouseOperation.PASS://通过审核
+                return houseService.updateStatus(id, HouseStatusEnum.PASSED.getValue());//更新状态为通过审核
+            case HouseOperation.PULL_OUT://下架重新审核
+                return houseService.updateStatus(id, HouseStatusEnum.UNCHECKED.getValue());//更新状态未审核
+            case HouseOperation.DELETE://逻辑删除
+                return houseService.updateStatus(id, HouseStatusEnum.DELETED.getValue());//更新状态为逻辑删除和
+            case HouseOperation.RENT://出租
+                return houseService.updateStatus(id, HouseStatusEnum.RENTED.getValue());//更新状态为出租
             default:
                 return ServiceResult.ofResultEnum(ResultEnum.NOT_VALID_PARAM);
         }

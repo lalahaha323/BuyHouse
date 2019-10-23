@@ -44,7 +44,10 @@ public enum ResultEnum {
     ERROR_DATA(71004, "数据有问题"),
     ERROR_EMPTY_DATA(71005, "修改类型为空"),
     ERROR_MISMATCH_EMAIL(71006, "不支持的邮箱格式"),
-    ERROR_NO_FILED(71007, "不支持的属性")
+    ERROR_NO_FILED(71007, "不支持的属性"),
+    ERROR_STATUS_NOCHANGE(71008, "状态没有发生变化"),
+    ERROR_STATUS_NORENT(71009, "已出租的房源不允许修改状态"),
+    ERROR_STATUS_NODELETE(71010, "已删除的房源不允许操作")
     ;
 
     private Integer code;
