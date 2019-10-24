@@ -1,5 +1,6 @@
 package com.lala.service;
 
+import com.lala.elasticsearch.RentSearch;
 import com.lala.service.result.ResultDataTableResponse;
 import com.lala.service.result.ServiceResult;
 import com.lala.utils.DatatableSearch;
@@ -23,4 +24,8 @@ public interface HouseService {
     ServiceResult update(HouseForm houseForm);
     /** 修改房屋状态 **/
     ServiceResult updateStatus(Long id, int status);
+    /** 查询房源信息集 **/
+    ServiceResult query(RentSearch rentSearch);
+    /** 查询房源个数 **/
+    int countAll();
 }

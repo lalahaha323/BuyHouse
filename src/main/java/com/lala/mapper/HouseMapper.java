@@ -1,5 +1,6 @@
 package com.lala.mapper;
 
+import com.lala.elasticsearch.RentSearch;
 import com.lala.entity.House;
 import com.lala.utils.DatatableSearch;
 import org.apache.ibatis.annotations.Mapper;
@@ -21,4 +22,6 @@ public interface HouseMapper {
     House findOneById(@Param(value = "id") Long id);
     void update(House house);
     void updateStatus(@Param(value = "id") Long id, @Param(value = "status") int status);
+    /** user查询所有的房屋列表 **/
+    List<House> userFindAllHousesBySearch(RentSearch rentSearch);
 }

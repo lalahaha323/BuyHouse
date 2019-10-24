@@ -59,4 +59,12 @@
         SELECT * FROM house_detail
         WHERE house_id = #{id}
     </select>
+
+    <select id="findAllById" resultType="com.lala.entity.HouseDetail" parameterType="java.util.List">
+        SELECT * FROM house_detail
+        WHERE house_id in
+        <foreach collection="houseIdList" separator="," open="(" close=")" item="item" index="index">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

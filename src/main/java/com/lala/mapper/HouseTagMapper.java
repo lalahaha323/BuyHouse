@@ -19,4 +19,5 @@ public interface HouseTagMapper {
                                   @Param(value = "name") String name);
     void deleteById(@Param(value = "id")Long id);
     void saveOne(HouseTag houseTag);
+    List<HouseTag> findAllByIdList(@Param(value = "houseIdList") List<Long> houseIdList);
 }

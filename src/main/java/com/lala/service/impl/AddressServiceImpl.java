@@ -42,6 +42,13 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
+    public SupportAddressDTO getCityByCityEnNameAndLevel(String cityEnName) {
+        SupportAddress supportAddress = supportAddressMapper.findByCityEnNameAndLevel(cityEnName, LevelEnum.CITY.getValue());
+        SupportAddressDTO supportAddressDTO = modelMapper.map(supportAddress, SupportAddressDTO.class);
+        return supportAddressDTO;
+    }
+
+    @Override
     public ServiceResult findAllRegionsByCityName(String cityName) {
         if(cityName == null) {
             return ServiceResult.ofResultEnum(ResultEnum.NOT_VALID_PARAM);

@@ -12,4 +12,5 @@ public interface AddressService {
     ServiceResult<SupportAddressDTO> findAllCities();
     /** 根据城市英文简写获取该城市所有支持的区域信息 **/
     ServiceResult findAllRegionsByCityName(String cityName);
+    SupportAddressDTO getCityByCityEnNameAndLevel(String cityEnName);
 }

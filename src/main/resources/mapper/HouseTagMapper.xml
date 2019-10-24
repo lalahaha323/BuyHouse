@@ -16,6 +16,13 @@
             )
         </foreach>
     </insert>
+    <select id="findAllByIdList" resultType="com.lala.entity.HouseTag" parameterType="java.util.List">
+        SELECT * FROM house_tag
+        WHERE house_id in
+        <foreach collection="houseIdList" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
     <insert id="saveOne">
         INSERT INTO house_tag (house_id, name)
         VALUES (#{houseId}, #{name})
