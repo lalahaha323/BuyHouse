@@ -8,6 +8,8 @@ import com.lala.mapper.UserMapper;
 import com.lala.service.UserService;
 import com.lala.service.result.ServiceResult;
 import com.lala.utils.LoginUserUtil;
+import com.lala.web.dto.UserDTO;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,6 +30,8 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
     @Autowired
     private RoleMapper roleMapper;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public User finUserByName(String name) {
@@ -66,5 +70,12 @@ public class UserServiceImpl implements UserService {
         }
         userMapper.updateUser(user);
         return ServiceResult.ofResultEnum(ResultEnum.SUCCESS);
+    }
+
+    @Override
+    public ServiceResult<UserDTO> getUserById(Long id) {
+        User user = userMapper.findById(id);
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+        return ServiceResult.ofSuccess(userDTO);
     }
 }

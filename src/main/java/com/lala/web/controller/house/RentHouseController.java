@@ -6,13 +6,16 @@ import com.lala.entity.SupportAddress;
 import com.lala.enums.ResultEnum;
 import com.lala.service.AddressService;
 import com.lala.service.HouseService;
+import com.lala.service.UserService;
 import com.lala.service.result.ServiceResult;
+import com.lala.web.dto.HouseDTO;
 import com.lala.web.dto.SupportAddressDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -31,6 +34,8 @@ public class RentHouseController {
     AddressService addressService;
     @Autowired
     HouseService houseService;
+    @Autowired
+    UserService userService;
 
     @GetMapping("/house")
     public String rentHousePage(@ModelAttribute RentSearch rentSearch,
@@ -76,6 +81,33 @@ public class RentHouseController {
         model.addAttribute("currentAreaBlock", RentValueBlock.matchArea(rentSearch.getAreaBlock()));
         return "rent-list";
 
+    }
+
+    /** 房屋详情页面　**/
+    @GetMapping("/house/show/{id}")
+    public String show(@PathVariable(value = "id") Long houseId, Model model) {
+        if (houseId <= 0) {
+            return "404";
+        }
+
+        ServiceResult result = houseService.findAllOne(houseId);
+        if (result.getCode() != 200) {
+            return "404";
+        }
+        HouseDTO house = (HouseDTO) result.getData();
+        String cityEnName = house.getCityEnName();
+        String regionEnName = house.getRegionEnName();
+        String district = house.getDistrict();
+
+        SupportAddressDTO city = addressService.getCityByCityEnNameAndLevel(cityEnName);
+        SupportAddressDTO region = addressService.getRegionByEnNameAndBelongTo(regionEnName, cityEnName);
+        model.addAttribute("city", city);
+        model.addAttribute("region", region);
+        model.addAttribute("house", house);
+
+        ServiceResult userResult = userService.getUserById(house.getAdminId());
+        model.addAttribute("agent", userResult.getData());
+        return "house-detail";
 
     }
 }

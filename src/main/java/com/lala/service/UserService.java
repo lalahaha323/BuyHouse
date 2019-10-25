@@ -9,4 +9,5 @@ import com.lala.service.result.ServiceResult;
 public interface UserService {
     User finUserByName(String name);
     ServiceResult updateUser(String profile, String value);
+    ServiceResult getUserById(Long id);
 }

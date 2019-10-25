@@ -30,7 +30,7 @@ public class AddressServiceImpl implements AddressService {
     public ServiceResult<SupportAddressDTO> findAllCities() {
 
         List<SupportAddress> cityList = supportAddressMapper.findAllByLevel(LevelEnum.CITY.getValue());
-        if(cityList.isEmpty()) {
+        if (cityList.isEmpty()) {
             return ServiceResult.ofResultEnum(ResultEnum.NOT_FOUND);
         }
         List<SupportAddressDTO> cityDTOList = new ArrayList<>();
@@ -49,13 +49,20 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
+    public SupportAddressDTO getRegionByEnNameAndBelongTo(String enName, String belongTo) {
+        SupportAddress supportAddress = supportAddressMapper.findByRegionEnNameAndBelongTo(enName, belongTo);
+        SupportAddressDTO supportAddressDTO = modelMapper.map(supportAddress, SupportAddressDTO.class);
+        return supportAddressDTO;
+    }
+
+    @Override
     public ServiceResult findAllRegionsByCityName(String cityName) {
-        if(cityName == null) {
+        if (cityName == null) {
             return ServiceResult.ofResultEnum(ResultEnum.NOT_VALID_PARAM);
         }
         /** 获取到例如ｂｊ所有的ｒｅｇｉｏｎ的信息 **/
         List<SupportAddress> regionList = supportAddressMapper.findAllByLevelAndBelongTo(LevelEnum.REGION.getValue(), cityName);
-        if(regionList.isEmpty()) {
+        if (regionList.isEmpty()) {
             return ServiceResult.ofResultEnum(ResultEnum.NOT_FOUND);
         }
         List<SupportAddressDTO> regionDTOList = new ArrayList<>();
@@ -64,12 +71,5 @@ public class AddressServiceImpl implements AddressService {
             regionDTOList.add(supportAddressDTO);
         }
         return ServiceResult.ofSuccess(regionDTOList);
-    }
-
-    @Override
-    public SupportAddressDTO getCityByCityEnNameAndLevel(String cityEnName) {
-        SupportAddress supportAddress = supportAddressMapper.findByCityEnNameAndLevel(cityEnName, LevelEnum.CITY.getValue());
-        SupportAddressDTO supportAddressDTO = modelMapper.map(supportAddress, SupportAddressDTO.class);
-        return supportAddressDTO;
     }
 }

@@ -39,11 +39,4 @@
         SELECT * FROM house_tag
         WHERE house_id = #{house_id} AND name = #{name}
     </select>
-    <select id="findAllByIdList" resultType="com.lala.entity.HouseTag" parameterType="java.util.List">
-        SELECT * FROM house_tag
-        WHERE house_id in
-        <foreach collection="houseIdList" item="item" index="index" open="(" close=")" separator=",">
-            #{item}
-        </foreach>
-    </select>
 </mapper>
