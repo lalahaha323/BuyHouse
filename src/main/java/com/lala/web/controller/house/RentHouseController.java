@@ -2,6 +2,7 @@ package com.lala.web.controller.house;
 
 import com.lala.elasticsearch.RentSearch;
 import com.lala.elasticsearch.RentValueBlock;
+import com.lala.entity.SupportAddress;
 import com.lala.enums.ResultEnum;
 import com.lala.service.AddressService;
 import com.lala.service.HouseService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 
 /**
  * @author lala

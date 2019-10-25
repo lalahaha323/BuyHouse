@@ -65,4 +65,11 @@ public class AddressServiceImpl implements AddressService {
         }
         return ServiceResult.ofSuccess(regionDTOList);
     }
+
+    @Override
+    public SupportAddressDTO getCityByCityEnNameAndLevel(String cityEnName) {
+        SupportAddress supportAddress = supportAddressMapper.findByCityEnNameAndLevel(cityEnName, LevelEnum.CITY.getValue());
+        SupportAddressDTO supportAddressDTO = modelMapper.map(supportAddress, SupportAddressDTO.class);
+        return supportAddressDTO;
+    }
 }

@@ -314,6 +314,121 @@ public class HouseServiceImpl implements HouseService {
     }
 
 
+    /** 查询房源信息集 **/
+    @Override
+    public ServiceResult query(RentSearch rentSearch) {
+
+        RentSearch newRentSearch = validateSearchParam(rentSearch);
+        List<HouseDTO> houseDtos = new ArrayList<>();
+        int pageNum = rentSearch.getStart() / rentSearch.getSize();
+        PageHelper.startPage(pageNum, rentSearch.getSize());
+        //查询所有的房屋列表
+        List<House> houses = houseMapper.userFindAllHousesBySearch(newRentSearch);
+        if (houses.size() == 0) {
+            return ServiceResult.ofResultEnum(ResultEnum.ERROR_EMPTY_HOUSE);
+        }
+
+        List<Long> houseIds = new ArrayList<>();
+        Map<Long, HouseDTO> idToHouseMap = Maps.newHashMap();
+        houses.forEach(item -> {
+            HouseDTO houseDto = modelMapper.map(item, HouseDTO.class);
+            houseDtos.add(houseDto);
+            houseIds.add(item.getId());
+            idToHouseMap.put(item.getId(), houseDto);
+        });
+
+
+        /*包装房屋细节*/
+        FillHouseDetailAndTag(houseIds, idToHouseMap);
+        return ServiceResult.ofSuccess(houseDtos);
+    }
+
+    @Override
+    public int countAll() {
+        return houseMapper.countAll();
+    }
+
+    /** 包装房屋细节 detail+tags **/
+    private void FillHouseDetailAndTag(List<Long> houseIdList, Map<Long, HouseDTO> idToHouseMap) {
+        /** 根据房屋id查询出所有的detail **/
+        List<HouseDetail> houseDetailList = houseDetailMapper.findAllById(houseIdList);
+        if(houseDetailList != null) {
+            houseDetailList.forEach(houseDetail -> {
+                HouseDTO houseDTO = idToHouseMap.get(houseDetail.getHouseId());
+                HouseDetailDTO detailDTO = modelMapper.map(houseDetail, HouseDetailDTO.class);
+                houseDTO.setHouseDetail(detailDTO);
+            });
+        }
+
+        /** 根据房屋id找出所有的tag **/
+        List<HouseTag> houseTagList = houseTagMapper.findAllByIdList(houseIdList);
+        if (houseTagList != null) {
+            houseTagList.forEach(houseTag -> {
+                List<String> tags = new ArrayList<>();
+                HouseDTO house = idToHouseMap.get(houseTag.getHouseId());
+                tags.add(houseTag.getName());
+                house.setTags(tags);
+            });
+        }
+    }
+
+
+    /**  **/
+    private RentSearch validateSearchParam(RentSearch rentSearch) {
+        //用于排序的字段
+        String orderBy = rentSearch.getOrderBy();
+        //升序还是降序
+        String orderDirection = rentSearch.getOrderDirection();
+
+        //默认是last_update_time进行排序
+        if (orderBy == null) {
+            rentSearch.setOrderBy("last_update_time");
+        }
+
+        if (rentSearch.getOrderBy() != null && rentSearch.getOrderBy().equals("lastUpdateTime")) {
+            rentSearch.setOrderBy("last_update_time");
+        } else if (rentSearch.getOrderBy() != null && rentSearch.getOrderBy().equals("distanceToSubway")) {
+            rentSearch.setOrderBy("distance_to_subway");
+        } else if (rentSearch.getOrderBy() != null && rentSearch.getOrderBy().equals("createTime")) {
+            rentSearch.setOrderBy("create_time");
+        }
+
+        if (rentSearch.getRegionEnName() != null) {
+            if (rentSearch.getRegionEnName().equals("*")) {
+                rentSearch.setRegionEnName(null);
+            }
+        }
+        if (rentSearch.getAreaBlock() != null) {
+            if (rentSearch.getAreaBlock().equals("*")) {
+                rentSearch.setAreaBlock(null);
+            }
+        }
+        if (rentSearch.getPriceBlock() != null) {
+            if (rentSearch.getPriceBlock().equals("*")) {
+                rentSearch.setPriceBlock("null");
+            }
+        }
+        if (rentSearch.getAreaBlock() != null) {
+            if (rentSearch.getAreaBlock().equals("*-30")) {
+                rentSearch.setAreaKey(1);
+            } else if (rentSearch.getAreaBlock().equals("30-50")) {
+                rentSearch.setAreaKey(2);
+            } else if (rentSearch.getAreaBlock().equals("50-*")) {
+                rentSearch.setAreaKey(3);
+            }
+        }
+
+        if (rentSearch.getPriceBlock() != null) {
+            if (rentSearch.getPriceBlock().equals("*-1000")) {
+                rentSearch.setPriceKey(1);
+            } else if (rentSearch.getPriceBlock().equals("1000-3000")) {
+                rentSearch.setPriceKey(2);
+            } else if (rentSearch.getPriceBlock().equals("3000-*")) {
+                rentSearch.setPriceKey(3);
+            }
+        }
+        return rentSearch;
+    }
 
     /** 房源详细信息对象填充 **/
     private HouseDetail FillinDetailInfo(HouseForm houseForm) {
