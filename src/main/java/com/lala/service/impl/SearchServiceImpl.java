@@ -211,6 +211,17 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public void remove(long houseId) {
-
+        RestHighLevelClient client = EsUtil.create();
+        DeleteByQueryRequest request = new DeleteByQueryRequest(
+                INDEX_NAME
+        );
+        request.setQuery(QueryBuilders.termsQuery("houseId", String.valueOf(houseId)));
+        try {
+            BulkByScrollResponse bulkByScrollResponse = client.deleteByQuery(request, RequestOptions.DEFAULT);
+            long deleted = bulkByScrollResponse.getDeleted();
+            System.out.println("Delete total " + deleted);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
