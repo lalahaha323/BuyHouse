@@ -12,12 +12,16 @@ import com.lala.mapper.HouseMapper;
 import com.lala.mapper.HouseTagMapper;
 import com.lala.service.SearchService;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +52,7 @@ public class SearchServiceImpl implements SearchService {
     ModelMapper modelMapper;
     @Override
     public void index(long houseId) {
+        RestHighLevelClient client = EsUtil.create();
         House house = houseMapper.findOneById(houseId);
         if (house == null) {
             logger.error("索引house不存在！", houseId);
@@ -57,9 +62,53 @@ public class SearchServiceImpl implements SearchService {
         HouseIndexTemplate houseIndexTemplate = new HouseIndexTemplate();
         modelMapper.map(house, houseIndexTemplate);
 
+        HouseDetail houseDetail = houseDetailMapper.findOneById(houseId);
+        if (houseDetail == null) {
+            //异常情况
+        }
+        modelMapper.map(houseDetail, houseIndexTemplate);
 
+        List<HouseTag> houseTagList = houseTagMapper.findAllById(houseId);
+        if(houseTagList != null && !houseTagList.isEmpty()) {
+            List<String> houseTagStringList = new ArrayList<>();
+            for (HouseTag houseTag : houseTagList) {
+                houseTagStringList.add(houseTag.getName());
+            }
+            houseIndexTemplate.setTags(houseTagStringList);
+        }
 
+        SearchRequest searchRequest = new SearchRequest(INDEX_NAME);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        MatchQueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("houseId", houseIndexTemplate.getHouseId());
+        searchSourceBuilder.query(matchQueryBuilder);
+        searchRequest.source(searchSourceBuilder);
 
+        boolean success = false;
+        try {
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+            long totalHit = searchResponse.getHits().getTotalHits();
+            if(totalHit == 0) {
+                success = create(houseIndexTemplate);
+            } else if(totalHit == 1){
+                String esId = searchResponse.getHits().getAt(0).getId();
+                success = update(esId, houseIndexTemplate);
+            } else {
+                System.out.println("有多个");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(success) {
+            logger.debug("更新索引成功，houseId为：" + houseId);
+        }
+        
+        try {
+            client.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
     }
 
     /** 创建索引 **/
