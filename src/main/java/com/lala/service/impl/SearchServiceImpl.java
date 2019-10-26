@@ -1,21 +1,32 @@
 package com.lala.service.impl;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.lala.config.EsUtil;
 import com.lala.elasticsearch.HouseIndexTemplate;
 import com.lala.entity.House;
+import com.lala.entity.HouseDetail;
+import com.lala.entity.HouseTag;
+import com.lala.mapper.HouseDetailMapper;
 import com.lala.mapper.HouseMapper;
+import com.lala.mapper.HouseTagMapper;
 import com.lala.service.SearchService;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,6 +41,10 @@ public class SearchServiceImpl implements SearchService {
     @Autowired
     HouseMapper houseMapper;
     @Autowired
+    HouseDetailMapper houseDetailMapper;
+    @Autowired
+    HouseTagMapper houseTagMapper;
+    @Autowired
     ModelMapper modelMapper;
     @Override
     public void index(long houseId) {
@@ -41,6 +56,7 @@ public class SearchServiceImpl implements SearchService {
 
         HouseIndexTemplate houseIndexTemplate = new HouseIndexTemplate();
         modelMapper.map(house, houseIndexTemplate);
+
 
 
 
@@ -126,7 +142,23 @@ public class SearchServiceImpl implements SearchService {
             return false;
         }
     }
+    /** 删除索引 **/
+    private void remove(HouseIndexTemplate houseIndexTemplate) {
 
+        Long houseId = houseIndexTemplate.getHouseId();
+        RestHighLevelClient client = EsUtil.create();
+        DeleteByQueryRequest request = new DeleteByQueryRequest(
+                INDEX_NAME
+        );
+        request.setQuery(QueryBuilders.termsQuery("houseId", String.valueOf(houseId)));
+        try {
+            BulkByScrollResponse bulkByScrollResponse = client.deleteByQuery(request, RequestOptions.DEFAULT);
+            long deleted = bulkByScrollResponse.getDeleted();
+            System.out.println("Delete total " + deleted);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void remove(long houseId) {
