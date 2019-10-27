@@ -204,6 +204,8 @@ public class HouseServiceImpl implements HouseService {
         /** 上架更新索引 **/
         if(status == HouseStatusEnum.PASSED.getValue()) {
             searchService.index(house.getId());
+        } else {
+            searchService.remove(house.getId());
         }
         return ServiceResult.ofResultEnum(ResultEnum.SUCCESS);
     }
