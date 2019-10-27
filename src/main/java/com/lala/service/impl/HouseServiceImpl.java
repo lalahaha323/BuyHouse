@@ -5,9 +5,11 @@ import com.google.common.collect.Maps;
 import com.lala.elasticsearch.RentSearch;
 import com.lala.entity.*;
 import com.lala.entity.HouseTag;
+import com.lala.enums.HouseStatusEnum;
 import com.lala.enums.ResultEnum;
 import com.lala.mapper.*;
 import com.lala.service.HouseService;
+import com.lala.service.SearchService;
 import com.lala.service.result.ResultDataTableResponse;
 import com.lala.service.result.ServiceResult;
 import com.lala.utils.DatatableSearch;
@@ -48,6 +50,8 @@ public class HouseServiceImpl implements HouseService {
     HouseSubscribeMapper houseSubscribeMapper;
     @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    SearchService searchService;
     @Override
     public ServiceResult save(HouseForm houseForm) {
         HouseDetail houseDetail = FillinDetailInfo(houseForm);
@@ -196,6 +200,11 @@ public class HouseServiceImpl implements HouseService {
                 return ServiceResult.ofResultEnum(ResultEnum.ERROR_STATUS_NODELETE);
         }
         houseMapper.updateStatus(id, status);
+
+        /** 上架更新索引 **/
+        if(status == HouseStatusEnum.PASSED.getValue()) {
+            searchService.index(house.getId());
+        }
         return ServiceResult.ofResultEnum(ResultEnum.SUCCESS);
     }
     /**  **/
