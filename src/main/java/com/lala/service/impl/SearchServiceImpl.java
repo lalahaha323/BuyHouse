@@ -71,7 +71,7 @@ public class SearchServiceImpl implements SearchService {
         this.index(houseId, 0);
     }
 
-    /** 消息入Kafka队列中 **/
+    /** 消息入Kafka队列中，完成增加索引 **/
     private void index(long houseId, int retry) {
         if (retry > KafkaMessage.MAX_RETRY) {
             logger.error("Retry Index times over 3 for house: " + houseId, " Please check it!");
@@ -176,6 +176,24 @@ public class SearchServiceImpl implements SearchService {
     /** 对ｋａｆｋａ的消息做删除索引 **/
     private void reamoveIndex(KafkaMessage kafkaMessage) {
 
+        long houseId = kafkaMessage.getHouseId();
+        RestHighLevelClient client = EsUtil.create();
+        DeleteByQueryRequest request = new DeleteByQueryRequest(
+                INDEX_NAME
+        );
+        request.setQuery(QueryBuilders.termsQuery("houseId", String.valueOf(houseId)));
+        try {
+            BulkByScrollResponse bulkByScrollResponse = client.deleteByQuery(request, RequestOptions.DEFAULT);
+            long deleted = bulkByScrollResponse.getDeleted();
+            if (deleted <= 0) {
+                this.remove(houseId, kafkaMessage.getRetry() + 1);
+            } else {
+                System.out.println("Delete total " + deleted);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /** 创建索引 **/
@@ -258,38 +276,27 @@ public class SearchServiceImpl implements SearchService {
             return false;
         }
     }
-    /** 删除索引 **/
-    private void remove(HouseIndexTemplate houseIndexTemplate) {
 
-        Long houseId = houseIndexTemplate.getHouseId();
-        RestHighLevelClient client = EsUtil.create();
-        DeleteByQueryRequest request = new DeleteByQueryRequest(
-                INDEX_NAME
-        );
-        request.setQuery(QueryBuilders.termsQuery("houseId", String.valueOf(houseId)));
-        try {
-            BulkByScrollResponse bulkByScrollResponse = client.deleteByQuery(request, RequestOptions.DEFAULT);
-            long deleted = bulkByScrollResponse.getDeleted();
-            System.out.println("Delete total " + deleted);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /** 删除索引 **/
+    /** 用户在下架，出租的时候会执行到这里，因为是第一次，所以retry = 0 **/
     @Override
     public void remove(long houseId) {
-        RestHighLevelClient client = EsUtil.create();
-        DeleteByQueryRequest request = new DeleteByQueryRequest(
-                INDEX_NAME
-        );
-        request.setQuery(QueryBuilders.termsQuery("houseId", String.valueOf(houseId)));
+        this.remove(houseId, 0);
+    }
+
+    /** 消息队列入Kafka中，完成删除 **/
+    private void remove(long houseId, int retry) {
+        if (retry > KafkaMessage.MAX_RETRY) {
+            logger.error("Retry Index times over 3 for house: " + houseId, " Please check it!");
+            return;
+        }
+
+        KafkaMessage kafkaMessage = new KafkaMessage(houseId, KafkaMessage.REMOVE, retry);
         try {
-            BulkByScrollResponse bulkByScrollResponse = client.deleteByQuery(request, RequestOptions.DEFAULT);
-            long deleted = bulkByScrollResponse.getDeleted();
-            System.out.println("Delete total " + deleted);
-        } catch (IOException e) {
-            e.printStackTrace();
+            /** 当kafka将消息发送出去的时候，监听器监听到的话就会消费 **/
+            this.kafkaTemplate.send(INDEX_TOPIC, objectMapper.writeValueAsString(kafkaMessage));
+        } catch (JsonProcessingException e) {
+            logger.error("Json encode error for " + kafkaMessage);
         }
     }
+
 }
