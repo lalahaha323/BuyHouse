@@ -283,16 +283,13 @@ public class HouseServiceImpl implements HouseService {
         int start = rentSearch.getStart();
         int length = rentSearch.getSize();
         int pageNum = start / length;
-        System.out.println("=======" + pageNum);
-        System.out.println("========" + length);
-        PageHelper.startPage(pageNum, length);
+//        System.out.println("=======" + pageNum);
+//        System.out.println("========" + length);
+//        PageHelper.startPage(pageNum, length);
         List<House> houses = new ArrayList<>();
         //查询所有的房屋列表
-        try{
-           houses = houseMapper.userFindAllHousesBySearch(newRentSearch);
-        } finally {
-            PageHelper.clearPage();
-        }
+        newRentSearch.setStart(pageNum);
+        houses = houseMapper.userFindAllHousesBySearch(newRentSearch);
         if (houses.size() == 0) {
             return ServiceResult.ofResultEnum(ResultEnum.ERROR_EMPTY_HOUSE);
         }

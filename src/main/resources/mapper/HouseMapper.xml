@@ -100,7 +100,7 @@
     </select>
 
     <select id="userFindAllHousesBySearch" resultType="com.lala.entity.House">
-        select id,
+        SELECT id,
         title,
         price,
         area,
@@ -122,7 +122,7 @@
         admin_id,
         bathroom,
         street
-        from house
+        FROM house
         <where>
             status != 3
             <if test="cityEnName != null and cityEnName != '' ">
@@ -167,14 +167,15 @@
         <choose>
             <when test="orderBy != null and orderBy !=''">
                 <choose>
-                    <when test="orderDirection != null and orderDirection !=''">
-                        order by ${orderBy} ${orderDirection}
+                    <when test="direction != null and direction !=''">
+                        order by ${orderBy} ${direction}
                     </when>
                     <otherwise>
-                        order by lastUpdateTime desc
+                        order by ${orderBy} desc
                     </otherwise>
                 </choose>
             </when>
         </choose>
+
     </select>
 </mapper>

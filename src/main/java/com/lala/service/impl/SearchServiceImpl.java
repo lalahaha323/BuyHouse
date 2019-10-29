@@ -1,5 +1,7 @@
 package com.lala.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.lala.config.EsUtil;
@@ -7,6 +9,7 @@ import com.lala.elasticsearch.HouseIndexTemplate;
 import com.lala.entity.House;
 import com.lala.entity.HouseDetail;
 import com.lala.entity.HouseTag;
+import com.lala.kafka.KafkaMessage;
 import com.lala.mapper.HouseDetailMapper;
 import com.lala.mapper.HouseMapper;
 import com.lala.mapper.HouseTagMapper;
@@ -26,6 +29,8 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -44,6 +49,7 @@ public class SearchServiceImpl implements SearchService {
 
     private static final String INDEX_NAME = "house";
     private static final String INDEX_TYPE = "_doc";
+    private static final String INDEX_TOPIC = "houseBuild";
 
     @Autowired
     HouseMapper houseMapper;
@@ -53,13 +59,67 @@ public class SearchServiceImpl implements SearchService {
     HouseTagMapper houseTagMapper;
     @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    ObjectMapper objectMapper;
+    @Autowired
+    KafkaTemplate<String, String> kafkaTemplate;
+
+    /** 用户在上架的时候会执行到这里，因为是第一次，所以retry = 0 **/
     @Override
     public void index(long houseId) {
+        /** 消息会异步进入kafka中进行消费 **/
+        this.index(houseId, 0);
+    }
+
+    /** 消息入Kafka队列中 **/
+    private void index(long houseId, int retry) {
+        if (retry > KafkaMessage.MAX_RETRY) {
+            logger.error("Retry Index times over 3 for house: " + houseId, " Please check it!");
+            return;
+        }
+
+        KafkaMessage kafkaMessage = new KafkaMessage(houseId, KafkaMessage.INDEX, retry);
+        try {
+            /** 当kafka将消息发送出去的时候，监听器监听到的话就会消费 **/
+            kafkaTemplate.send(INDEX_TOPIC, objectMapper.writeValueAsString(kafkaMessage));
+        } catch (JsonProcessingException e) {
+            logger.error("Json encode error for " + kafkaMessage);
+        }
+    }
+
+    /** Kafka监听处理 **/
+    @KafkaListener(topics = INDEX_TOPIC)
+    private void handleMessage(String content) {
+        try {
+            KafkaMessage kafkaMessage = objectMapper.readValue(content, KafkaMessage.class);
+            switch(kafkaMessage.getOperation()) {
+                case KafkaMessage.INDEX:
+                    this.createOrUpdateIndex(kafkaMessage);
+                    break;
+                case KafkaMessage.REMOVE:
+                    this.reamoveIndex(kafkaMessage);
+                    break;
+                default:
+                    logger.warn("Not support message content " + content);
+                    break;
+            }
+        } catch (JsonProcessingException e) {
+            logger.error("Cannot parse json for " + content, e);
+        }
+    }
+
+    /** 对ｋａｆｋａ的消息做创建或者更新索引 **/
+    private void createOrUpdateIndex(KafkaMessage kafkaMessage) {
+
+        Long houseId = kafkaMessage.getHouseId();
         RestHighLevelClient client = EsUtil.create();
+
         House house = houseMapper.findOneById(houseId);
         if (house == null) {
             logger.error("索引house不存在！", houseId);
-            return ;
+            /** 将消息重新入队列 **/
+            this.index(houseId, kafkaMessage.getRetry() + 1);
+            return;
         }
 
         HouseIndexTemplate houseIndexTemplate = new HouseIndexTemplate();
@@ -105,13 +165,17 @@ public class SearchServiceImpl implements SearchService {
         if(success) {
             logger.debug("更新索引成功，houseId为：" + houseId);
         }
-        
+
         try {
             client.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+    }
+
+    /** 对ｋａｆｋａ的消息做删除索引 **/
+    private void reamoveIndex(KafkaMessage kafkaMessage) {
+
     }
 
     /** 创建索引 **/
@@ -212,6 +276,7 @@ public class SearchServiceImpl implements SearchService {
         }
     }
 
+    /** 删除索引 **/
     @Override
     public void remove(long houseId) {
         RestHighLevelClient client = EsUtil.create();
