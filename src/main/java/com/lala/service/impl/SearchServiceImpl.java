@@ -348,5 +348,22 @@ public class SearchServiceImpl implements SearchService {
             boolQueryBuilder.filter(areaRangeQueryBuilder);
         }
 
+        /** 价格区间 **/
+        if (rentSearch.getPriceBlock() != null && !"*".equals(rentSearch.getPriceBlock())) {
+            /** 根据设置的价格区间范围去匹配一个 **/
+            RentValueBlock priseValueBlock = RentValueBlock.matchPrice(rentSearch.getPriceBlock());
+            RangeQueryBuilder priseRangeQueryBuilder = QueryBuilders.rangeQuery(HouseIndexKey.PRICE);
+            if (priseValueBlock.getMin() > 0) {
+                priseRangeQueryBuilder.gte(priseValueBlock.getMin());
+            } else {
+                priseRangeQueryBuilder.gte(0);
+            }
+            if (priseValueBlock.getMax() > 0) {
+                priseRangeQueryBuilder.lte(priseValueBlock.getMax());
+            }
+            boolQueryBuilder.filter(priseRangeQueryBuilder);
+        }
+
+
     }
 }
