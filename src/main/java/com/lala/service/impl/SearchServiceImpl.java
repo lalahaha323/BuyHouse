@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.lala.config.EsUtil;
+import com.lala.elasticsearch.HouseIndexKey;
 import com.lala.elasticsearch.HouseIndexTemplate;
+import com.lala.elasticsearch.RentSearch;
 import com.lala.entity.House;
 import com.lala.entity.HouseDetail;
 import com.lala.entity.HouseTag;
@@ -14,12 +16,14 @@ import com.lala.mapper.HouseDetailMapper;
 import com.lala.mapper.HouseMapper;
 import com.lala.mapper.HouseTagMapper;
 import com.lala.service.SearchService;
+import com.lala.service.result.ServiceResult;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
@@ -299,4 +303,30 @@ public class SearchServiceImpl implements SearchService {
         }
     }
 
+    @Override
+    public List<Long> esQuery(RentSearch rentSearch) {
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+
+        /** 加入筛选条件 **/
+        boolQueryBuilder.filter(QueryBuilders.termQuery(HouseIndexKey.CITY_EN_NAME, rentSearch.getCityEnName()));
+        if (rentSearch.getRegionEnName() != null && !"*".equals(rentSearch.getRegionEnName())) {
+            boolQueryBuilder.filter(QueryBuilders.termQuery(HouseIndexKey.REGION_EN_NAME, rentSearch.getRegionEnName()));
+        }
+
+        /** 关键词搜索，设置可以搜索的条件，标题等 **/
+        if (rentSearch.getKeywords() != null && !rentSearch.getKeywords().isEmpty()) {
+            boolQueryBuilder.must(
+                    QueryBuilders.multiMatchQuery(rentSearch.getKeywords(),
+                            HouseIndexKey.TITLE,
+                            HouseIndexKey.TRAFFIC,
+                            HouseIndexKey.DISTRICT,
+                            HouseIndexKey.ROUND_SERVICE,
+                            HouseIndexKey.SUBWAY_LINE_NAME,
+                            HouseIndexKey.SUBWAY_STATION_NAME,
+                            HouseIndexKey.STREET
+                    ));
+        }
+
+    }
 }
