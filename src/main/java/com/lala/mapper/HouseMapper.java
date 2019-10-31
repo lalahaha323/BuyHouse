@@ -24,4 +24,6 @@ public interface HouseMapper {
     void updateStatus(@Param(value = "id") Long id, @Param(value = "status") int status);
     /** user查询所有的房屋列表 **/
     List<House> userFindAllHousesBySearch(RentSearch rentSearch);
+    /** 通过List<ID>查找所有ID的房源 **/
+    List<House> findAllByIdList(@Param("houseIds") List<Long> houseIds);
 }

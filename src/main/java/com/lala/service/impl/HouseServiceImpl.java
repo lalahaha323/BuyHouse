@@ -23,10 +23,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author lala
@@ -266,26 +263,53 @@ public class HouseServiceImpl implements HouseService {
         return rentSearch;
     }
 
-
-
     @Override
     public int countAll() {
         return houseMapper.countAll();
     }
 
-
     /** 查询房源信息集 **/
     @Override
     public ServiceResult query(RentSearch rentSearch) {
+        /** 如果有关键词就从es查询 **/
+        if (rentSearch.getKeywords() != null && !rentSearch.getKeywords().isEmpty()) {
+            /** 从es查到要查的id之后，从mysql中查全部 **/
+            List<Long> houseIdList = searchService.esQuery(rentSearch);
+            if (houseIdList.isEmpty() || houseIdList == null) {
+                return ServiceResult.ofResultEnum(ResultEnum.ERROR_EMPTY_HOUSE);
+            }
+            /** 根据从es中查到的ID去mysql中查对应的数据 **/
+            return mysqlQueryById(houseIdList);
+        }
+        return mysqlQuery(rentSearch);
+    }
 
+    /** 根据ID从mysql中去查 **/
+    public ServiceResult mysqlQueryById(List<Long> houseIdList) {
+        List<HouseDTO> houseDTOList = new ArrayList<>();
+
+        List<House> houseList = houseMapper.findAllByIdList(houseIdList);
+        Map<Long, HouseDTO> idToHouseMap = new HashMap<>();
+        for (House house : houseList) {
+            HouseDTO houseDTO = modelMapper.map(house, HouseDTO.class);
+            idToHouseMap.put(house.getId(), houseDTO);
+        }
+
+        //包装房屋细节 detail+tags
+        FillHouseDetailAndTag(houseIdList, idToHouseMap);
+        for (long houseId : houseIdList) {
+            houseDTOList.add(idToHouseMap.get(houseId));
+        }
+        return ServiceResult.ofSuccess(houseDTOList);
+    }
+
+    /** 从mysql中去查 **/
+    public ServiceResult mysqlQuery(RentSearch rentSearch) {
         RentSearch newRentSearch = validateSearchParam(rentSearch);
         List<HouseDTO> houseDtos = new ArrayList<>();
         int start = rentSearch.getStart();
         int length = rentSearch.getSize();
         int pageNum = start / length;
-//        System.out.println("=======" + pageNum);
-//        System.out.println("========" + length);
-//        PageHelper.startPage(pageNum, length);
         List<House> houses = new ArrayList<>();
         //查询所有的房屋列表
         newRentSearch.setStart(pageNum);
@@ -302,8 +326,6 @@ public class HouseServiceImpl implements HouseService {
             houseIds.add(item.getId());
             idToHouseMap.put(item.getId(), houseDto);
         });
-
-
         /*包装房屋细节*/
         FillHouseDetailAndTag(houseIds, idToHouseMap);
         return ServiceResult.ofSuccess(houseDtos);
@@ -334,8 +356,6 @@ public class HouseServiceImpl implements HouseService {
             });
         }
     }
-
-
 
     /** 房源详细信息对象填充 **/
     private HouseDetail FillinDetailInfo(HouseForm houseForm) {

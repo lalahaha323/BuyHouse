@@ -178,4 +178,11 @@
         </choose>
 
     </select>
+    <select id="findAllByIdList" resultType="com.lala.entity.House">
+        SELECT * FROM house
+        WHERE id in
+        <foreach collection="houseIds" index="index" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
 </mapper>
