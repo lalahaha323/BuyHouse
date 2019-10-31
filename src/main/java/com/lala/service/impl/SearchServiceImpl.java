@@ -8,6 +8,7 @@ import com.lala.config.EsUtil;
 import com.lala.elasticsearch.HouseIndexKey;
 import com.lala.elasticsearch.HouseIndexTemplate;
 import com.lala.elasticsearch.RentSearch;
+import com.lala.elasticsearch.RentValueBlock;
 import com.lala.entity.House;
 import com.lala.entity.HouseDetail;
 import com.lala.entity.HouseTag;
@@ -26,6 +27,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -326,6 +328,24 @@ public class SearchServiceImpl implements SearchService {
                             HouseIndexKey.SUBWAY_STATION_NAME,
                             HouseIndexKey.STREET
                     ));
+        }
+
+        /** 面积区间 **/
+        if (rentSearch.getAreaBlock() != null && !"*".equals(rentSearch.getAreaBlock())) {
+            /** 根据设置的面积区间范围去匹配一个 **/
+            RentValueBlock areaValueBlock = RentValueBlock.matchArea(rentSearch.getAreaBlock());
+            RangeQueryBuilder areaRangeQueryBuilder = QueryBuilders.rangeQuery(HouseIndexKey.AREA);
+            if (areaValueBlock.getMin() > 0) {
+                /** 大于最小值 **/
+                areaRangeQueryBuilder.gte(areaValueBlock.getMin());
+            } else {
+                areaRangeQueryBuilder.gte(0);
+            }
+            if (areaValueBlock.getMax() > 0) {
+                /** 小于最大值 **/
+                areaRangeQueryBuilder.lte(areaValueBlock.getMax());
+            }
+            boolQueryBuilder.filter(areaRangeQueryBuilder);
         }
 
     }
