@@ -364,6 +364,11 @@ public class SearchServiceImpl implements SearchService {
             boolQueryBuilder.filter(priseRangeQueryBuilder);
         }
 
+        /** 朝向 **/
+        if (rentSearch.getDirection() > 0) {
+            boolQueryBuilder.filter(QueryBuilders.termQuery(HouseIndexKey.DIRECTION, rentSearch.getDirection()));
+        }
+
 
     }
 }
