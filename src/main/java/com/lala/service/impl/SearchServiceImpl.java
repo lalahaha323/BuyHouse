@@ -374,6 +374,12 @@ public class SearchServiceImpl implements SearchService {
             boolQueryBuilder.filter(QueryBuilders.termQuery(HouseIndexKey.RENT_WAY, rentSearch.getRentWay()));
         }
 
+        /** 卧室数量 **/
+        //卧室数量
+        if (rentSearch.getRoom() > 0) {
+            boolQueryBuilder.filter(QueryBuilders.termQuery(HouseIndexKey.ROOM, rentSearch.getRoom()));
+        }
+
 
     }
 }
