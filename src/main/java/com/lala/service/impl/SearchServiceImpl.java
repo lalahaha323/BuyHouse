@@ -4,11 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Longs;
 import com.lala.config.EsUtil;
-import com.lala.elasticsearch.HouseIndexKey;
-import com.lala.elasticsearch.HouseIndexTemplate;
-import com.lala.elasticsearch.RentSearch;
-import com.lala.elasticsearch.RentValueBlock;
+import com.lala.elasticsearch.*;
 import com.lala.entity.House;
 import com.lala.entity.HouseDetail;
 import com.lala.entity.HouseTag;
@@ -30,7 +28,10 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
+import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -305,9 +306,11 @@ public class SearchServiceImpl implements SearchService {
         }
     }
 
+    /** ES查询 **/
     @Override
     public List<Long> esQuery(RentSearch rentSearch) {
 
+        RestHighLevelClient client = EsUtil.create();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
         /** 加入筛选条件 **/
@@ -380,6 +383,31 @@ public class SearchServiceImpl implements SearchService {
             boolQueryBuilder.filter(QueryBuilders.termQuery(HouseIndexKey.ROOM, rentSearch.getRoom()));
         }
 
-
+        /** 查询请求 **/
+        SearchRequest searchRequest = new SearchRequest(INDEX_NAME);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(boolQueryBuilder);
+        searchSourceBuilder.from(rentSearch.getStart());        /** 从多少条开始 **/
+        searchSourceBuilder.size(rentSearch.getSize());        /** 每页数量 **/
+        //将构造器设置到查询请求中
+        searchRequest.source(searchSourceBuilder);
+        logger.info("the search condition is {}", searchSourceBuilder);
+        try {
+            List<Long> houseIds = Lists.newArrayList();
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+            if (searchResponse.status() != RestStatus.OK) {
+                logger.info("Search status is no ok  ");
+                return houseIds;
+            }
+            /** 查询到的结果集 **/
+            SearchHit[] hits = searchResponse.getHits().getHits();
+            for (SearchHit item : hits) {
+                houseIds.add(Longs.tryParse(item.getSourceAsMap().get(HouseIndexKey.HOUSE_ID).toString()));
+            }
+            return houseIds;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
