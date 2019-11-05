@@ -6,6 +6,7 @@ import com.lala.entity.SupportAddress;
 import com.lala.enums.ResultEnum;
 import com.lala.service.AddressService;
 import com.lala.service.HouseService;
+import com.lala.service.SearchService;
 import com.lala.service.UserService;
 import com.lala.service.result.ServiceResult;
 import com.lala.web.dto.HouseDTO;
@@ -13,10 +14,7 @@ import com.lala.web.dto.SupportAddressDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
@@ -36,6 +34,8 @@ public class RentHouseController {
     HouseService houseService;
     @Autowired
     UserService userService;
+    @Autowired
+    SearchService searchService;
 
     @GetMapping("/house")
     public String rentHousePage(@ModelAttribute RentSearch rentSearch,
@@ -109,5 +109,15 @@ public class RentHouseController {
         model.addAttribute("agent", userResult.getData());
         return "house-detail";
 
+    }
+
+    /** 自动补全接口 **/
+    @GetMapping("/house/autocomplete")
+    @ResponseBody
+    public ServiceResult autoComplete(@RequestParam(value = "prefix") String prefix) {
+        if (prefix.isEmpty()) {
+            return ServiceResult.ofResultEnum(ResultEnum.BAD_REQUEST);
+        }
+        return searchService.fix(prefix);
     }
 }

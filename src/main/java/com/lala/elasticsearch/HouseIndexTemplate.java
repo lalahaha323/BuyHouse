@@ -31,4 +31,7 @@ public class HouseIndexTemplate {
     private String roundService;
     private int rentWay;
     private List<String> tags;
+
+    /** 输入自动补全字段 **/
+    private List<HouseFix> fix;
 }

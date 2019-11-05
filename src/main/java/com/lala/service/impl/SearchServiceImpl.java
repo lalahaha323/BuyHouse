@@ -10,12 +10,15 @@ import com.lala.elasticsearch.*;
 import com.lala.entity.House;
 import com.lala.entity.HouseDetail;
 import com.lala.entity.HouseTag;
+import com.lala.enums.ResultEnum;
 import com.lala.kafka.KafkaMessage;
 import com.lala.mapper.HouseDetailMapper;
 import com.lala.mapper.HouseMapper;
 import com.lala.mapper.HouseTagMapper;
 import com.lala.service.SearchService;
 import com.lala.service.result.ServiceResult;
+import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest;
+import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -32,6 +35,11 @@ import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.search.suggest.SuggestBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilders;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +49,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author lala
@@ -205,6 +210,10 @@ public class SearchServiceImpl implements SearchService {
 
     /** 创建索引 **/
     private boolean create(HouseIndexTemplate houseIndexTemplate) {
+        /** 更新自动补全索引 **/
+        if (!updateFix(houseIndexTemplate)) {
+            return false;
+        }
         RestHighLevelClient client = EsUtil.create();
 
         Map<String, Object> jsonMap = new HashMap<>();
@@ -245,6 +254,10 @@ public class SearchServiceImpl implements SearchService {
 
     /** 更新索引 **/
     private boolean update(String esId, HouseIndexTemplate houseIndexTemplate) {
+        /** 更新自动补全索引 **/
+        if (!updateFix(houseIndexTemplate)) {
+            return false;
+        }
         RestHighLevelClient client = EsUtil.create();
 
         Map<String, Object> jsonMap = new HashMap<>();
@@ -410,4 +423,110 @@ public class SearchServiceImpl implements SearchService {
         }
         return null;
     }
+
+    /** 关键字模糊匹配 **/
+    @Override
+    public ServiceResult fix(String prefix) {
+
+        RestHighLevelClient client = EsUtil.create();
+        SearchRequest searchRequest = new SearchRequest(INDEX_NAME);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        /** 对哪个字段进行自动提示 **/
+        CompletionSuggestionBuilder completionSuggestionBuilder = SuggestBuilders.completionSuggestion("fix").prefix(prefix).size(2);
+        SuggestBuilder suggestBuilder = new SuggestBuilder();
+        suggestBuilder.addSuggestion("autoComplete", completionSuggestionBuilder);
+        searchSourceBuilder.suggest(suggestBuilder);
+        searchRequest.source(searchSourceBuilder);
+        logger.info("搜索建议the search condition is {}", searchSourceBuilder);
+        try {
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+            Suggest suggest = searchResponse.getSuggest();
+            if (suggest == null) {
+                return ServiceResult.ofSuccess(null);
+            }
+            /** 获取的结果可能有重复的东西，所以需要过滤一下 **/
+            Suggest.Suggestion result = suggest.getSuggestion("autoComplete");
+            int maxSuggest = 0;
+            /** 使用set进行过滤 **/
+            Set<String> suggestSet = new HashSet<>();
+            for (Object term : result.getEntries()) {
+                if (term instanceof CompletionSuggestion.Entry) {
+                    CompletionSuggestion.Entry item = (CompletionSuggestion.Entry) term;
+
+                    if (item.getOptions().isEmpty()) {
+                        continue;
+                    }
+                    for (CompletionSuggestion.Entry.Option option : item.getOptions()) {
+                        String tip = option.getText().string();
+                        if (suggestSet.contains(tip)) {
+                            continue;
+                        }
+                        suggestSet.add(tip);
+                        maxSuggest++;
+                    }
+                }
+                if (maxSuggest > 5) {
+                    break;
+                }
+            }
+            List<String> suggests = Lists.newArrayList(suggestSet.toArray(new String[]{}));
+            return ServiceResult.ofSuccess(suggests);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ServiceResult.ofSuccess(null);
+    }
+
+    /** 对HouseIndexTemplate的街道，标题，描述等数据进行分词之后存入houseIndexTemplate中的fix中 **/
+    private boolean updateFix(HouseIndexTemplate houseIndexTemplate) {
+
+        RestHighLevelClient client = EsUtil.create();
+
+        AnalyzeRequest request = new AnalyzeRequest();
+        /** 需要分词的 **/
+        request.text(
+                houseIndexTemplate.getTitle(),
+                houseIndexTemplate.getLayoutDesc(),
+                houseIndexTemplate.getRoundService(),
+                houseIndexTemplate.getDescription(),
+                houseIndexTemplate.getSubwayLineName(),
+                houseIndexTemplate.getSubwayStationName()
+        );
+        request.analyzer("ik_smart");
+        try {
+            AnalyzeResponse response = client.indices().analyze(request, RequestOptions.DEFAULT);
+            /** 获取每一个词 **/
+            List<AnalyzeResponse.AnalyzeToken> tokens = response.getTokens();
+            if (tokens == null) {
+                logger.info("Can not analyze token for house: " + houseIndexTemplate.getHouseId());
+                return false;
+            }
+            List<HouseFix> fixs = new ArrayList<>();
+            for (AnalyzeResponse.AnalyzeToken token : tokens) {
+                // 排序数字类型 || 小于2个字符的分词结果排除掉,不分词 es中的数字类型是<NUM>
+                if ("<NUM>".equals(token.getType()) || token.getTerm().length() < 2) {
+                    continue;
+                }
+
+                HouseFix houseFix = new HouseFix();
+                /** 一样的权重 **/
+                houseFix.setInput(token.getTerm());
+                fixs.add(houseFix);
+            }
+            // 定制化小区自动补全 ,小区名不需要分词
+            HouseFix districrtFix = new HouseFix();
+            districrtFix.setInput(houseIndexTemplate.getDistrict());
+            fixs.add(districrtFix);
+            // 定制化街道自动补全，街道名不需要分词
+            HouseFix streetFix = new HouseFix();
+            streetFix.setInput(houseIndexTemplate.getStreet());
+            fixs.add(streetFix);
+            houseIndexTemplate.setFix(fixs);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

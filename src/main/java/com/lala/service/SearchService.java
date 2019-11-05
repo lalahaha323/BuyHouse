@@ -15,4 +15,5 @@ public interface SearchService {
     void remove(long houseId);
     //es查询
     List<Long> esQuery(RentSearch rentSearch);
+    ServiceResult fix(String prefix);
 }
