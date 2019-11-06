@@ -15,5 +15,8 @@ public interface SearchService {
     void remove(long houseId);
     //es查询
     List<Long> esQuery(RentSearch rentSearch);
+    //关键字模糊匹配
     ServiceResult fix(String prefix);
+    //聚合统计小区的房源
+    ServiceResult aggregateDistrictHouse(String cityEnName, String regionName, String district);
 }

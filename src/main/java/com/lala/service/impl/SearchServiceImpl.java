@@ -33,6 +33,9 @@ import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.search.suggest.Suggest;
@@ -475,6 +478,38 @@ public class SearchServiceImpl implements SearchService {
             e.printStackTrace();
         }
         return ServiceResult.ofSuccess(null);
+    }
+
+    /** 聚合统计小区的房源 **/
+    @Override
+    public ServiceResult aggregateDistrictHouse(String cityEnName, String regionName, String district) {
+
+        RestHighLevelClient client = EsUtil.create();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.filter(QueryBuilders.termQuery(HouseIndexKey.CITY_EN_NAME, cityEnName));
+        boolQueryBuilder.filter(QueryBuilders.termQuery(HouseIndexKey.REGION_EN_NAME, regionName));
+        boolQueryBuilder.filter(QueryBuilders.termQuery(HouseIndexKey.DISTRICT, district));
+        TermsAggregationBuilder aggregation = AggregationBuilders.terms(HouseIndexKey.AGG_DISTRICT) //对小区进行聚合
+                .field(HouseIndexKey.DISTRICT);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(boolQueryBuilder).aggregation(aggregation);
+        logger.info("执行dsl{}", searchSourceBuilder.toString());
+        //searchSourceBuilder.size(0);
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.source(searchSourceBuilder);
+        try {
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+            if (searchResponse.status() == RestStatus.OK) {
+                Terms terms = searchResponse.getAggregations().get(HouseIndexKey.AGG_DISTRICT);
+                long count = terms.getBucketByKey(district).getDocCount();
+                return ServiceResult.ofSuccess(count);
+            } else {
+                logger.info("Failed to Aggregate for " + HouseIndexKey.AGG_DISTRICT);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ServiceResult.ofSuccess(0);
     }
 
     /** 对HouseIndexTemplate的街道，标题，描述等数据进行分词之后存入houseIndexTemplate中的fix中 **/
