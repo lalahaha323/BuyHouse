@@ -107,6 +107,10 @@ public class RentHouseController {
 
         ServiceResult userResult = userService.getUserById(house.getAdminId());
         model.addAttribute("agent", userResult.getData());
+
+        //设计es的聚合
+        ServiceResult countResult = searchService.aggregateDistrictHouse(cityEnName, regionEnName, district);
+        model.addAttribute("houseCountInDistrict", countResult.getData());
         return "house-detail";
 
     }
