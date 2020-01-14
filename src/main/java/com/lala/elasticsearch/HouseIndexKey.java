@@ -27,4 +27,5 @@ public class HouseIndexKey {
     public static final String TAGS = "tags";
     public static final String ROOM = "room";
     public static final String AGG_DISTRICT = "agg_district";
+    public static final String AGG_REGION = "agg_region";
 }

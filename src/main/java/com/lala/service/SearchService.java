@@ -19,4 +19,6 @@ public interface SearchService {
     ServiceResult fix(String prefix);
     //聚合统计小区的房源
     ServiceResult aggregateDistrictHouse(String cityEnName, String regionName, String district);
+    //聚合统计城市房源信息数量
+    ServiceResult aggregateHouseCountByCityEnName(String cityEnName);
 }
