@@ -124,4 +124,27 @@ public class RentHouseController {
         }
         return searchService.fix(prefix);
     }
+
+    /** 地图找房功能 **/
+    @GetMapping("/house/map")
+    public String rentMapPage(@RequestParam(value = "cityEnName") String cityEnName,
+                              Model model,
+                              HttpSession httpSession,
+                              RedirectAttributes redirectAttributes) {
+        SupportAddressDTO city = addressService.getCityByCityEnNameAndLevel(cityEnName);
+        if (city == null) {
+            redirectAttributes.addAttribute("msg", "must_chose_city");
+            return "redirect:/index";
+        } else {
+            httpSession.setAttribute("cityName", cityEnName);
+            model.addAttribute("city", city);
+        }
+
+        ServiceResult regionResult = addressService.findAllRegionsByCityName(cityEnName);
+
+        model.addAttribute("total", 0);
+        model.addAttribute("regions", regionResult.getData());
+        return "rent-map";
+    }
+
 }
