@@ -9,6 +9,7 @@ import com.lala.service.HouseService;
 import com.lala.service.SearchService;
 import com.lala.service.UserService;
 import com.lala.service.result.ServiceResult;
+import com.lala.web.dto.HouseBucketDTO;
 import com.lala.web.dto.HouseDTO;
 import com.lala.web.dto.SupportAddressDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author lala
@@ -141,8 +143,17 @@ public class RentHouseController {
         }
 
         ServiceResult regionResult = addressService.findAllRegionsByCityName(cityEnName);
-
-        model.addAttribute("total", 0);
+        ServiceResult aggResult = searchService.aggregateHouseCountByCityEnName(cityEnName);
+        /** 将Object变成List<> **/
+        List<HouseBucketDTO> aggResultList = new ArrayList<>();
+        Object obj = aggResult.getData();
+        if (obj instanceof ArrayList<?>) {
+            for (Object o : (List<?>) obj) {
+                aggResultList.add(HouseBucketDTO.class.cast(o));
+            }
+        }
+        model.addAttribute("aggData", obj);
+        model.addAttribute("total", aggResultList.size());
         model.addAttribute("regions", regionResult.getData());
         return "rent-map";
     }
