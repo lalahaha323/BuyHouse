@@ -17,4 +17,6 @@ public class SupportAddressDTO {
     @JsonProperty(value = "cn_name")
     private String cnName;
     private String level;
+    private double baiDuMapLongitude;
+    private double baiDuMapLatitude;
 }

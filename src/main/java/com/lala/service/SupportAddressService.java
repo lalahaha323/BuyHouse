@@ -25,4 +25,6 @@ public interface SupportAddressService {
     SupportAddressDTO findCityByCityEnName(String cityEnName);
     /** 根据区域英文名称获取该区域信息 **/
     SupportAddressDTO findRegionByRegionEnName(String regionEnName);
+    /** 根据城市以及具体地址名称获取经纬度 **/
+    ServiceResult getBaiduMapLocationByCity(String city, String region);
 }

@@ -10,12 +10,16 @@ import com.lala.elasticsearch.*;
 import com.lala.entity.House;
 import com.lala.entity.HouseDetail;
 import com.lala.entity.HouseTag;
+import com.lala.entity.SupportAddress;
+import com.lala.enums.LevelEnum;
 import com.lala.enums.ResultEnum;
 import com.lala.kafka.KafkaMessage;
 import com.lala.mapper.HouseDetailMapper;
 import com.lala.mapper.HouseMapper;
 import com.lala.mapper.HouseTagMapper;
+import com.lala.mapper.SupportAddressMapper;
 import com.lala.service.SearchService;
+import com.lala.service.SupportAddressService;
 import com.lala.service.result.ServiceResult;
 import com.lala.web.dto.HouseBucketDTO;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest;
@@ -76,6 +80,10 @@ public class SearchServiceImpl implements SearchService {
     HouseTagMapper houseTagMapper;
     @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    SupportAddressMapper supportAddressMapper;
+    @Autowired
+    SupportAddressService supportAddressService;
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
@@ -147,6 +155,18 @@ public class SearchServiceImpl implements SearchService {
             //异常情况
         }
         modelMapper.map(houseDetail, houseIndexTemplate);
+
+        /** **/
+        SupportAddress city = supportAddressMapper.findByCityEnNameAndLevel(house.getCityEnName(), LevelEnum.CITY.getValue());
+        SupportAddress region = supportAddressMapper.findByCityEnNameAndLevel(house.getRegionEnName(), LevelEnum.REGION.getValue());
+        String address = city.getCnName() + region.getCnName() + house.getStreet() + house.getDistrict() + houseDetail.getAddress();
+
+        ServiceResult baiduMapResult = supportAddressService.getBaiduMapLocationByCity(city.getCnName(), address);
+        if (baiduMapResult.getCode() != 200) {
+            this.index(kafkaMessage.getHouseId(), kafkaMessage.getRetry() + 1);
+            return;
+        }
+        houseIndexTemplate.setLocation((BaiduMapLocation)baiduMapResult.getData());
 
         List<HouseTag> houseTagList = houseTagMapper.findAllById(houseId);
         if(houseTagList != null && !houseTagList.isEmpty()) {

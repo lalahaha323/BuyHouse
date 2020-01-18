@@ -34,4 +34,6 @@ public class HouseIndexTemplate {
 
     /** 输入自动补全字段 **/
     private List<HouseFix> fix;
+    /** 百度地图经纬度 **/
+    private BaiduMapLocation location;
 }
