@@ -2,6 +2,7 @@ package com.lala.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Maps;
+import com.lala.elasticsearch.MapSearch;
 import com.lala.elasticsearch.RentSearch;
 import com.lala.entity.*;
 import com.lala.entity.HouseTag;
@@ -266,6 +267,17 @@ public class HouseServiceImpl implements HouseService {
     @Override
     public int countAll() {
         return houseMapper.countAll();
+    }
+
+    /** 全地图查询 **/
+    @Override
+    public ServiceResult wholeMapQuery(MapSearch mapSearch) {
+        List<Long> ids = searchService.mapQuery(mapSearch.getCityEnName(), mapSearch.getOrderBy(), mapSearch.getOrderDirection(), mapSearch.getStart(), mapSearch.getSize());
+        if (ids.size() == 0) {
+            return ServiceResult.ofResultEnum(ResultEnum.NOT_FOUND);
+        }
+        //根据房屋id查询出房屋的信息=house+detail
+        return mysqlQueryById(ids);
     }
 
     /** 查询房源信息集 **/
