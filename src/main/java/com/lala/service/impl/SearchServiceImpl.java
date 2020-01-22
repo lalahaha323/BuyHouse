@@ -30,6 +30,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -582,6 +583,51 @@ public class SearchServiceImpl implements SearchService {
         searchSourceBuilder.size(size);//每页数量
         searchSourceBuilder.sort(orderBy, SortOrder.fromString(orderDirection));//排序
         logger.info("执行的dsl{}", searchSourceBuilder.toString());
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = null;
+        List<Long> ids = new ArrayList<>();
+        try {
+            searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+            if (searchResponse.status() != RestStatus.OK) {
+                logger.error("Failed to search");
+                return ids;
+            } else {
+                //结果集
+                SearchHit[] hits = searchResponse.getHits().getHits();
+                for (SearchHit item : hits) {
+                    ids.add(Longs.tryParse(item.getSourceAsMap().get(HouseIndexKey.HOUSE_ID).toString()));
+                }
+                return ids;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ids;
+    }
+
+    /** 小地图查询 **/
+    @Override
+    public List<Long> mapBoundQuery(MapSearch mapSearch) {
+
+        RestHighLevelClient client = EsUtil.create();
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        boolQuery.filter(QueryBuilders.termQuery(HouseIndexKey.CITY_EN_NAME, mapSearch.getCityEnName()));
+        boolQuery.filter(
+                QueryBuilders.geoBoundingBoxQuery("location")
+                        .setCorners(
+                                new GeoPoint(mapSearch.getLeftLatitude(), mapSearch.getLeftLongitude()),
+                                new GeoPoint(mapSearch.getRightLatitude(), mapSearch.getRightLongitude())
+                        ));
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(boolQuery);
+        //从多少条开始
+        searchSourceBuilder.from(mapSearch.getStart());
+        //每页数量
+        searchSourceBuilder.size(mapSearch.getSize());
+        //排序
+        searchSourceBuilder.sort(mapSearch.getOrderBy(), SortOrder.fromString(mapSearch.getOrderDirection()));
+        logger.info("执行的dsl{}语句", searchSourceBuilder.toString());
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.source(searchSourceBuilder);
         SearchResponse searchResponse = null;
