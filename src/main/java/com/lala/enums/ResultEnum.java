@@ -48,6 +48,7 @@ public enum ResultEnum {
     ERROR_STATUS_NOCHANGE(71008, "状态没有发生变化"),
     ERROR_STATUS_NORENT(71009, "已出租的房源不允许修改状态"),
     ERROR_STATUS_NODELETE(71010, "已删除的房源不允许操作"),
+    ERROR_NOCHOOSE_CITY(71011, "必须选择城市"),
 
     ERROR_ENCODE(71100, "转码错误")
     ;

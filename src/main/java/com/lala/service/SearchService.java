@@ -1,5 +1,6 @@
 package com.lala.service;
 
+import com.lala.elasticsearch.MapSearch;
 import com.lala.elasticsearch.RentSearch;
 import com.lala.service.result.ServiceResult;
 
@@ -21,4 +22,8 @@ public interface SearchService {
     ServiceResult aggregateDistrictHouse(String cityEnName, String regionName, String district);
     //聚合统计城市房源信息数量
     ServiceResult aggregateHouseCountByCityEnName(String cityEnName);
+    //es地图查询，返回房屋ID
+    List<Long> mapQuery(String cityEnName, String orderBy, String orderDirection, int start, int size);
+    //小地图查询
+    List<Long> mapBoundQuery(MapSearch mapSearch);
 }

@@ -1,5 +1,6 @@
 package com.lala.service;
 
+import com.lala.elasticsearch.MapSearch;
 import com.lala.elasticsearch.RentSearch;
 import com.lala.service.result.ResultDataTableResponse;
 import com.lala.service.result.ServiceResult;
@@ -28,4 +29,9 @@ public interface HouseService {
     ServiceResult query(RentSearch rentSearch);
     /** 查询房源个数 **/
     int countAll();
+    /** 全地图查询 **/
+    ServiceResult wholeMapQuery(MapSearch mapSearch);
+    /** 缩放地图查询 **/
+    ServiceResult boundMapQuery(MapSearch mapSearch);
+
 }

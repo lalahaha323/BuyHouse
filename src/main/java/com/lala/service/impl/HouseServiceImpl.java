@@ -280,6 +280,18 @@ public class HouseServiceImpl implements HouseService {
         return mysqlQueryById(ids);
     }
 
+    /** 缩放地图查询 **/
+    @Override
+    public ServiceResult boundMapQuery(MapSearch mapSearch) {
+
+        List<Long> ids = searchService.mapBoundQuery(mapSearch);
+        if (ids.size() == 0) {
+            return ServiceResult.ofResultEnum(ResultEnum.NOT_FOUND);
+        }
+        //根据房屋id查询出房屋的信息=house+detail
+        return mysqlQueryById(ids);
+    }
+
     /** 查询房源信息集 **/
     @Override
     public ServiceResult query(RentSearch rentSearch) {
