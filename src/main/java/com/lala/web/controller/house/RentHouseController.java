@@ -1,5 +1,6 @@
 package com.lala.web.controller.house;
 
+import com.lala.elasticsearch.MapSearch;
 import com.lala.elasticsearch.RentSearch;
 import com.lala.elasticsearch.RentValueBlock;
 import com.lala.entity.SupportAddress;
@@ -156,6 +157,22 @@ public class RentHouseController {
         model.addAttribute("total", aggResultList.size());
         model.addAttribute("regions", regionResult.getData());
         return "rent-map";
+    }
+
+    /** 根据ES的地图查询功能 **/
+    @GetMapping("/house/map/houses")
+    @ResponseBody
+    public ServiceResult rentMapHouses(@ModelAttribute MapSearch mapSearch) {
+
+        if (mapSearch.getCityEnName() == null) {
+            return ServiceResult.ofResultEnum(ResultEnum.ERROR_NOCHOOSE_CITY);
+        }
+        if (mapSearch.getLevel() < 13) {
+            return houseService.wholeMapQuery(mapSearch);
+        } else {
+            // 小地图查询必须要传递地图边界参数
+            return houseService.boundMapQuery(mapSearch);
+        }
     }
 
 }
