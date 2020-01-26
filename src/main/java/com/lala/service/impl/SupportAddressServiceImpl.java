@@ -1,6 +1,8 @@
 package com.lala.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
 import com.lala.elasticsearch.BaiduAPI;
 import com.lala.elasticsearch.BaiduMapLocation;
 import com.lala.entity.SupportAddress;
@@ -12,9 +14,13 @@ import com.lala.service.result.ServiceResult;
 import com.lala.web.dto.SupportAddressDTO;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,6 +161,45 @@ public class SupportAddressServiceImpl implements SupportAddressService {
             e.printStackTrace();
             return ServiceResult.ofResultEnum(ResultEnum.BAD_REQUEST);
         }
-        return null;
+    }
+
+    /** 上传至lbs **/
+    @Override
+    public ServiceResult lbsUpload(BaiduMapLocation location, int area, String title, int price, String address, Long houseId, String tags) {
+
+
+    }
+
+    /** 判断poi数据是否已经上传 **/
+    private boolean isLbsDataExists(Long houseId) {
+        HttpClient httpClient = HttpClients.createDefault();
+        StringBuilder stringBuilder = new StringBuilder(BaiduAPI.LISTPOI);
+        stringBuilder.append("geotable_id=").append(BaiduAPI.GEOTABLE_ID).append("&")
+                     .append("ak=").append(BAIDU_MAP_KEY).append("&")
+                     .append("houseId=").append(houseId).append(",").append(houseId);
+        HttpGet get = new HttpGet(stringBuilder.toString());
+        try {
+
+            HttpResponse response = httpClient.execute(get);
+            String result = EntityUtils.toString(response.getEntity(), "UTF-8");
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                return false;
+            }
+            JSONObject responseObject = (JSONObject) JSONObject.parse(result);
+            int status = Ints.tryParse(responseObject.get("status").toString());
+            if (status != 0) {
+                return false;
+            } else {
+                long size = Longs.tryParse(responseObject.get("size").toString());
+                if (size > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
