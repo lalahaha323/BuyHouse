@@ -1,5 +1,6 @@
 package com.lala.service;
 
+import com.lala.elasticsearch.BaiduMapLocation;
 import com.lala.entity.SupportAddress;
 import com.lala.enums.LevelEnum;
 import com.lala.service.result.ServiceResult;
@@ -27,4 +28,12 @@ public interface SupportAddressService {
     SupportAddressDTO findRegionByRegionEnName(String regionEnName);
     /** 根据城市以及具体地址名称获取经纬度 **/
     ServiceResult getBaiduMapLocationByCity(String city, String region);
+    /** 上传至百度云地理服务lbs **/
+    ServiceResult lbsUpload(BaiduMapLocation baiduMapLocation,
+                            int area,
+                            String title,
+                            int price,
+                            String address,
+                            Long houseId,
+                            String tags);
 }

@@ -167,7 +167,46 @@ public class SupportAddressServiceImpl implements SupportAddressService {
     @Override
     public ServiceResult lbsUpload(BaiduMapLocation location, int area, String title, int price, String address, Long houseId, String tags) {
 
-
+        HttpClient httpClient = HttpClients.createDefault();
+        List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("latitude", String.valueOf(location.getLat())));
+        params.add(new BasicNameValuePair("longitude", String.valueOf(location.getLon())));
+        //用户上传的坐标的类型
+        params.add(new BasicNameValuePair("coord_type", "3")); // 百度坐标系
+        params.add(new BasicNameValuePair("geotable_id", BaiduAPI.GEOTABLE_ID));
+        params.add(new BasicNameValuePair("ak", BAIDU_MAP_KEY));
+        params.add(new BasicNameValuePair("houseId", String.valueOf(houseId)));
+        params.add(new BasicNameValuePair("price", String.valueOf(price)));
+        params.add(new BasicNameValuePair("area", String.valueOf(area)));
+        params.add(new BasicNameValuePair("title", title));
+        params.add(new BasicNameValuePair("address", address));
+        params.add(new BasicNameValuePair("tags", tags));
+        HttpPost post;
+        if (isLbsDataExists(houseId)) {
+            post = new HttpPost(BaiduAPI.UPDATEPOI);
+        } else {
+            post = new HttpPost(BaiduAPI.CREATEPOI);
+        }
+        try {
+            post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+            HttpResponse response = httpClient.execute(post);
+            String result = EntityUtils.toString(response.getEntity(), "UTF-8");
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                return ServiceResult.ofResultEnum(ResultEnum.BAD_REQUEST);
+            } else {
+                JSONObject responseObject = (JSONObject) JSONObject.parse(result);
+                int status = Ints.tryParse(responseObject.get("status").toString());
+                if (status != 0) {
+                    String message = responseObject.get("message").toString();
+                    return ServiceResult.ofResultEnum(ResultEnum.BAD_REQUEST);
+                } else {
+                    return ServiceResult.ofResultEnum(ResultEnum.SUCCESS);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ServiceResult.ofResultEnum(ResultEnum.BAD_REQUEST);
     }
 
     /** 判断poi数据是否已经上传 **/
