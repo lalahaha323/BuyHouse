@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -77,6 +78,15 @@ public class AdminController {
     @GetMapping("/house/subscribe")
     public String houseSubscribe() {
         return "admin/subscribe";
+    }
+
+    /** 房源预约管理 **/
+    @GetMapping("/house/subscribe/list")
+    @ResponseBody
+    public ResultDataTableResponse houseSubscribeList(@RequestParam(value = "draw") int draw,
+                                            @RequestParam(value = "start") int start,
+                                            @RequestParam(value = "length") int size) {
+        return houseService.adminFindSubscribeList(draw, start, size);
     }
 
     /** 上传图片 **/

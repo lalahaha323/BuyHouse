@@ -6,4 +6,26 @@
         SELECT * FROM house_subscribe
         WHERE house_id = #{houseId} AND user_id = #{UserId}
     </select>
+    <select id="findAllByHouseSubscribe" resultType="com.lala.entity.HouseSubscribe">
+        select *
+        from house_subscribe
+        <where>
+            <if test="userId != null and userId !=''">
+                user_id=#{userId}
+            </if>
+            <if test="adminId != null and adminId !=''">
+                admin_id=#{adminId}
+            </if>
+            <if test="status !=null ">
+                and status =#{status}
+            </if>
+            <if test="houseId !=null and houseId !=''">
+                and house_id=#{houseId}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+    <select id="countHouseSubscribe" resultType="java.lang.Integer">
+
+    </select>
 </mapper>

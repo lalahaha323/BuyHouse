@@ -7,9 +7,11 @@ import com.lala.elasticsearch.RentSearch;
 import com.lala.entity.*;
 import com.lala.entity.HouseTag;
 import com.lala.enums.HouseStatusEnum;
+import com.lala.enums.HouseSubscribeStatusEnum;
 import com.lala.enums.ResultEnum;
 import com.lala.mapper.*;
 import com.lala.service.HouseService;
+import com.lala.service.HouseSubscribeService;
 import com.lala.service.SearchService;
 import com.lala.service.result.ResultDataTableResponse;
 import com.lala.service.result.ServiceResult;
@@ -20,6 +22,7 @@ import com.lala.web.Form.PhotoForm;
 import com.lala.web.dto.HouseDTO;
 import com.lala.web.dto.HouseDetailDTO;
 import com.lala.web.dto.HousePictureDTO;
+import com.lala.web.dto.HouseSubscribeDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -290,6 +293,29 @@ public class HouseServiceImpl implements HouseService {
         }
         //根据房屋id查询出房屋的信息=house+detail
         return mysqlQueryById(ids);
+    }
+
+    /** 管理员查看用户预约记录 **/
+    @Override
+    public ResultDataTableResponse adminFindSubscribeList(int draw, int start, int size) {
+
+        Long userId = LoginUserUtil.getLoginUserId();
+        int pageNum = start / size;
+        PageHelper.startPage(pageNum + 1, size);
+        HouseSubscribe houseSubscribe = new HouseSubscribe();
+
+        houseSubscribe.setAdminId(userId);
+        houseSubscribe.setStatus(HouseSubscribeStatusEnum.IN_ORDER_LIST.getValue());
+        List<HouseSubscribe> houseSubscribeList = houseSubscribeMapper.findAllByHouseSubscribe(houseSubscribe);
+
+        ResultDataTableResponse response = new ResultDataTableResponse(ResultEnum.SUCCESS);
+
+        response.setData(houseSubscribeList);
+        response.setDraw(draw);
+        response.setRecordsFiltered(houseSubscribeList.size());
+        response.setRecordsTotal(houseSubscribeList.size());
+
+        return response;
     }
 
     /** 查询房源信息集 **/

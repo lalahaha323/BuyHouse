@@ -6,6 +6,7 @@ import com.lala.service.result.ResultDataTableResponse;
 import com.lala.service.result.ServiceResult;
 import com.lala.utils.DatatableSearch;
 import com.lala.web.Form.HouseForm;
+import com.lala.web.dto.HouseSubscribeDTO;
 
 
 import java.util.List;
@@ -33,5 +34,7 @@ public interface HouseService {
     ServiceResult wholeMapQuery(MapSearch mapSearch);
     /** 缩放地图查询 **/
     ServiceResult boundMapQuery(MapSearch mapSearch);
+    /** 管理员查看用户预约记录 **/
+    ResultDataTableResponse adminFindSubscribeList(int draw, int start, int size);
 
 }

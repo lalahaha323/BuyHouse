@@ -8,7 +8,7 @@ import lombok.Getter;
  */
 
 @Getter
-public enum  HouseSubscribeStatus {
+public enum HouseSubscribeStatusEnum {
     NO_SUBSCRIBE(0),//未预约
     IN_ORDER_LIST(1),//已加入待看清单
     IN_ORDER_TIME(2),//已经预约看房时间
@@ -16,16 +16,16 @@ public enum  HouseSubscribeStatus {
     ;
 
     private int value;
-    HouseSubscribeStatus(int value) {
+    HouseSubscribeStatusEnum(int value) {
         this.value = value;
     }
 
-    public static HouseSubscribeStatus getStatus(int value) {
-        for (HouseSubscribeStatus status : HouseSubscribeStatus.values()) {
+    public static HouseSubscribeStatusEnum getStatus(int value) {
+        for (HouseSubscribeStatusEnum status : HouseSubscribeStatusEnum.values()) {
             if (status.getValue() == value) {
                 return status;
             }
         }
-        return HouseSubscribeStatus.NO_SUBSCRIBE;
+        return HouseSubscribeStatusEnum.NO_SUBSCRIBE;
     }
 }
